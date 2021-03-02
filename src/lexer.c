@@ -10,10 +10,37 @@
 
 /* Token Utils */
 enum TokenType {
-    LITERAL    = 0,
-    SYMBOL     = 1,
-    IDENTIFIER = 2,
-};
+    
+    // Primitives
+    INTEGER,
+    FLOATING,
+    STRING,
+
+    // Keywords
+    IF,
+    WHILE,
+    DEFINE,
+    ELSE,
+    FOR,
+    RETURN,
+    INT,
+    FLOAT,
+    STR,
+
+    // SYMBOLS
+    LPARENS,
+    RPARENS,
+    LBRACE,
+    RBRACE,
+    LBRACKET,
+    RBRACKET,
+    COMMA,
+    SEMICOLON,
+
+    // Placeholder for all operators
+    OPERATOR
+
+} TokenType;
 
 typedef struct Token {
     
@@ -24,6 +51,52 @@ typedef struct Token {
     enum TokenType tokentype;
 
 } Token;
+
+
+
+/* Reserved Keywords, operators & seperator definitions */
+const char seperators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
+const int num_seperators = sizeof(seperators) / sizeof(char);
+
+const char single_char_operators[] = {'+', '-', '/', '*', '^', '&', '|', '<', '>', '=', '%', '!'};
+const int num_single_char_operators = sizeof(single_char_operators) / sizeof(char);
+
+const char dual_char_operators[8][2] = {"++", "--", "**", "&&", "||", ">=", "<=", "=="} ;
+const int num_dual_char_operators = 8;
+
+int is_seperator(char c) {
+    
+    for (int i = 0; i < num_seperators; i++) {
+        if (c == seperators[i]) {
+            return 1;
+        } 
+    }
+
+    return 0;
+}
+
+/* Type Identifiers */
+int is_single_char_operator(char c) {
+
+    for (int i = 0; i < num_single_char_operators; i++) {
+        if (c == single_char_operators[i]) { return 1; }
+    }
+
+    return 0;
+}
+
+int is_dual_char_operator(char a, char b) {
+
+    for (int i = 0; i < num_dual_char_operators; i++) {
+        if (a == dual_char_operators[i][0] && b == dual_char_operators[i][1]) { 
+            return 1;
+        }
+    }
+
+    return 0;
+
+}
+
 
 /* Lexer Utils */
 typedef struct LexerStatus {
@@ -42,52 +115,6 @@ typedef struct LexerStatus {
 
 } LexerStatus;
 
-
-/* Reserved Keywords, operators & seperator definitions */
-const char * const seperators[] = {"(", ")", "{", "}", ";", "[", "]"};
-const int num_seperators = 7;
-
-
-int is_seperator(char c) {
-    
-    for (int i = 0; i < num_seperators; i++) {
-        if (c == seperators[i][0]) {
-            return 1;
-        } 
-    }
-
-    return 0;
-}
-
-// @TODO this needs to be not shit
-int is_single_char_operator(char c) {
-
-    switch(c) {
-        case '+':
-        case '-':
-        case '/':
-        case '*':
-        case '=':
-        case '<':
-        case '>':
-        case '^':
-            return 1;
-        default:
-            return 0;
-    }
-}
-
-// @TODO this needs to be not shit
-int is_dual_char_operator(LexerStatus * status) {
-
-    if (is_single_char_operator(status->current_char) && status->next_char == '=') {
-        return 1;
-    }
-    
-    return 0;
-
-}
-
 void _increment(LexerStatus * status, FILE * ptr) {
 
         status->last_char    = status->current_char;
@@ -95,7 +122,6 @@ void _increment(LexerStatus * status, FILE * ptr) {
         status->next_char    = fgetc(ptr);
         status->cursor++;
 }
-
 
 void _build_token_from_buffer(LexerStatus * status) {
 
@@ -214,7 +240,7 @@ void main(int argc, char *argv[]){
 
         // If the current char could combine with the next char
         // to create a two-character operator such as ==, handle it.
-        if (is_dual_char_operator(&status) && !status.is_inside_string && !status.is_inside_comment){
+        if (is_dual_char_operator(status.current_char, status.next_char) && !status.is_inside_string && !status.is_inside_comment){
             _build_token_from_buffer(&status);
             _add_current_char_to_buffer(&status);
             _increment(&status, inp_fptr);
