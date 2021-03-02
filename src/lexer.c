@@ -10,8 +10,8 @@
 
 /* Token Utils */
 enum TokenType {
-    LITERAL = 0,
-    OPERATOR = 1,
+    LITERAL    = 0,
+    SYMBOL     = 1,
     IDENTIFIER = 2,
 };
 
