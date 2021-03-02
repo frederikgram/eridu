@@ -5,6 +5,7 @@ int b = 2;
 str name = "Frederik ";
 
 int c=a + b;
+float s = 1.23;
 
 define isOver18(int age){
 

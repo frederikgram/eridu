@@ -37,8 +37,13 @@ enum TokenType {
     COMMA,
     SEMICOLON,
 
+    IDENTIFIER,
+
     // Placeholder for all operators
-    OPERATOR
+    OPERATOR,
+
+    // Error?
+    ERROR
 
 } TokenType;
 
@@ -54,9 +59,9 @@ typedef struct Token {
 
 
 
-/* Reserved Keywords, operators & seperator definitions */
-const char seperators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
-const int num_seperators = sizeof(seperators) / sizeof(char);
+/* Reserved Keywords, operators & separator definitions */
+const char separators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
+const int num_separators = sizeof(separators) / sizeof(char);
 
 const char single_char_operators[] = {'+', '-', '/', '*', '^', '&', '|', '<', '>', '=', '%', '!'};
 const int num_single_char_operators = sizeof(single_char_operators) / sizeof(char);
@@ -64,24 +69,48 @@ const int num_single_char_operators = sizeof(single_char_operators) / sizeof(cha
 const char dual_char_operators[8][2] = {"++", "--", "**", "&&", "||", ">=", "<=", "=="} ;
 const int num_dual_char_operators = 8;
 
-int is_seperator(char c) {
+/* Type Identifiers */
+int is_separator(char c) {
     
-    for (int i = 0; i < num_seperators; i++) {
-        if (c == seperators[i]) {
+    for (int i = 0; i < num_separators; i++) {
+        if (c == separators[i]) {
             return 1;
         } 
     }
-
     return 0;
 }
 
-/* Type Identifiers */
+enum TokenType find_separator_type(char separator) {
+    
+    switch(separator){
+        case '(':
+            return LPARENS;
+        case ')':
+            return RPARENS;
+        case '[':
+            return LBRACKET;
+        case ']':
+            return RBRACKET;
+        case '{':
+            return LBRACE;
+        case '}':
+            return RBRACE;
+        case ',':
+            return COMMA;
+        case ';':
+            return SEMICOLON;
+        default:
+            return ERROR;
+       
+    }
+
+}
+
 int is_single_char_operator(char c) {
 
     for (int i = 0; i < num_single_char_operators; i++) {
         if (c == single_char_operators[i]) { return 1; }
     }
-
     return 0;
 }
 
@@ -92,11 +121,86 @@ int is_dual_char_operator(char a, char b) {
             return 1;
         }
     }
-
     return 0;
 
 }
 
+int is_float(char * value, int value_len){
+
+    int has_radix_point = 0;
+
+    for (int i = 0; i < value_len; i++){
+        if (isdigit(value[i]) == 0) {
+            if (value[i] == '.' && has_radix_point == 0) {
+                if (i == 0 || i == value_len-1) {
+                    return 0;
+                }
+
+                has_radix_point = 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int is_integer(char * value, int value_len) {
+    for (int i = 0; i < value_len; i++){
+        if (isdigit(value[i]) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int is_string(char * value, int value_len) {
+
+    // Check if value starts end ends with quotation marks
+    if(value_len >= 2 && value[0] == '"' && value[value_len-1] == '"'){
+        return 1;
+    }
+    return 0;
+}
+
+enum TokenType find_keyword_type(char * value, int value_len) {
+
+    if (strncmp(value, "if", 2) == 0) { return IF; }
+    if (strncmp(value, "for", 3) == 0) { return FOR; }
+    if (strncmp(value, "int", 3) == 0) { return INT; }
+    if (strncmp(value, "str", 3) == 0) { return STR; }
+    if (strncmp(value, "else", 4) == 0) { return ELSE; }
+    if (strncmp(value, "while", 5) == 0) { return WHILE; }
+    if (strncmp(value, "float", 5) == 0) { return FLOAT; }
+    if (strncmp(value, "define", 6) == 0) { return DEFINE; }
+
+    return ERROR;
+
+}
+
+
+enum TokenType identify_token_type(char * value, int value_len) {
+
+    // Types that only tokens of length two or more can be
+    if (value_len >= 2) {
+        if (is_string(value, value_len))               { return STRING; }
+        if (is_dual_char_operator(value[0], value[1])) { return OPERATOR; }
+        if (is_float(value, value_len))                { return FLOATING; }
+
+        enum TokenType type = find_keyword_type(value, value_len);
+        if (type != ERROR) {
+            return type;
+        }
+    }
+
+    // Types that tokens of any non-empty length can be
+    if (is_integer(value, value_len))              { return INTEGER; }
+    if (is_separator(value[0]))                    { return find_separator_type(value[0]); }
+    if (is_single_char_operator(value[0]))         { return OPERATOR; }
+
+    // Assume everything else is an identifier
+    return IDENTIFIER;
+}
 
 /* Lexer Utils */
 typedef struct LexerStatus {
@@ -135,6 +239,8 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.length = status->buffer_len;
     token.start = status->cursor - status->buffer_len + 1;
     token.end = status->cursor;
+
+    token.tokentype = identify_token_type(token.value, token.length);
 
     // Reset Character Buffer
     status->buffer_len = 0;
@@ -227,10 +333,10 @@ void main(int argc, char *argv[]){
             continue;
         }
         
-        // Check if the current token is a seperator
+        // Check if the current token is a separator
         // if it is, we convert both the current buffer and it
         // into two seperate tokens, then increment the lexer status.
-        if (is_seperator(status.current_char) && !status.is_inside_string && !status.is_inside_comment) {
+        if (is_separator(status.current_char) && !status.is_inside_string && !status.is_inside_comment) {
             _build_token_from_buffer(&status);
             _add_current_char_to_buffer(&status);
             _build_token_from_buffer(&status);
@@ -251,7 +357,7 @@ void main(int argc, char *argv[]){
         
         }
 
-        // This could be combined with the is_seperator check
+        // This could be combined with the is_separator check
         // but this feels more explicit and readable
         if (is_single_char_operator(status.current_char) && !status.is_inside_string && !status.is_inside_comment) {
             _build_token_from_buffer(&status);
@@ -267,7 +373,7 @@ void main(int argc, char *argv[]){
     }
 
     for (int i = 0; i < status.tokens_len; i++) {
-        printf("value\t%s\tstart\t%d\tend\t%d\n", status.tokens[i].value, status.tokens[i].start, status.tokens[i].end);
+        printf("value\t%s\tstart\t%d\tend\t%d\ttype\t%d\n", status.tokens[i].value, status.tokens[i].start, status.tokens[i].end, status.tokens[i].tokentype);
     }
     
 }
