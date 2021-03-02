@@ -4,62 +4,16 @@
 #include <string.h>                                                             
 #include <stdarg.h>
 
+#include "tokens.h"
 
 #define CHARACTER_BUFFER_SIZE   1024
 #define ARRAY_OF_TOKENS_SIZE   102400
 
-/* Token Utils */
-enum TokenType {
-    
-    // Primitives
-    INTEGER,
-    FLOATING,
-    STRING,
 
-    // Keywords
-    IF,
-    WHILE,
-    DEFINE,
-    ELSE,
-    FOR,
-    RETURN,
-    INT,
-    FLOAT,
-    STR,
-
-    // SYMBOLS
-    LPARENS,
-    RPARENS,
-    LBRACE,
-    RBRACE,
-    LBRACKET,
-    RBRACKET,
-    COMMA,
-    SEMICOLON,
-
-    IDENTIFIER,
-
-    // Placeholder for all operators
-    OPERATOR,
-
-    // Error?
-    ERROR
-
-} TokenType;
-
-typedef struct Token {
-    
-    char * value;
-    int length;
-    int start;
-    int end;
-    enum TokenType tokentype;
-
-} Token;
-
-
-
-/* Reserved Keywords, operators & separator definitions */
+/* Operator & Separator definitions.
+ * Keyword definitions are hardcoded into the
+ * find_keyword_type() function
+ */
 const char separators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
 const int num_separators = sizeof(separators) / sizeof(char);
 
@@ -69,7 +23,7 @@ const int num_single_char_operators = sizeof(single_char_operators) / sizeof(cha
 const char dual_char_operators[8][2] = {"++", "--", "**", "&&", "||", ">=", "<=", "=="} ;
 const int num_dual_char_operators = 8;
 
-/* Type Identifiers */
+/* Type Checkers */
 int is_separator(char c) {
     
     for (int i = 0; i < num_separators; i++) {
@@ -80,31 +34,6 @@ int is_separator(char c) {
     return 0;
 }
 
-enum TokenType find_separator_type(char separator) {
-    
-    switch(separator){
-        case '(':
-            return LPARENS;
-        case ')':
-            return RPARENS;
-        case '[':
-            return LBRACKET;
-        case ']':
-            return RBRACKET;
-        case '{':
-            return LBRACE;
-        case '}':
-            return RBRACE;
-        case ',':
-            return COMMA;
-        case ';':
-            return SEMICOLON;
-        default:
-            return ERROR;
-       
-    }
-
-}
 
 int is_single_char_operator(char c) {
 
@@ -113,6 +42,7 @@ int is_single_char_operator(char c) {
     }
     return 0;
 }
+
 
 int is_dual_char_operator(char a, char b) {
 
@@ -124,6 +54,7 @@ int is_dual_char_operator(char a, char b) {
     return 0;
 
 }
+
 
 int is_float(char * value, int value_len){
 
@@ -163,16 +94,94 @@ int is_string(char * value, int value_len) {
     return 0;
 }
 
-enum TokenType find_keyword_type(char * value, int value_len) {
+/* Token Type Identifiers 
+ * @TODO This seems so hardcoded and ugly... 
+ * maybe I could implement a hashmap style solution instead
+ */
+enum TokenType find_single_char_operator_type(char operator){
 
-    if (strncmp(value, "if", 2) == 0) { return IF; }
-    if (strncmp(value, "for", 3) == 0) { return FOR; }
-    if (strncmp(value, "int", 3) == 0) { return INT; }
-    if (strncmp(value, "str", 3) == 0) { return STR; }
-    if (strncmp(value, "else", 4) == 0) { return ELSE; }
-    if (strncmp(value, "while", 5) == 0) { return WHILE; }
-    if (strncmp(value, "float", 5) == 0) { return FLOAT; }
-    if (strncmp(value, "define", 6) == 0) { return DEFINE; }
+    switch(operator){
+        case '+':
+            return PLUS;
+        case '-':
+            return MINUS;
+        case '/':
+            return DIVIDE;
+        case '*':
+            return MULTIPLY;
+        case '^':
+            return BIT_XOR;
+        case '&':
+            return BIT_AND;
+        case '|':
+            return BIT_OR;
+        case '=':
+            return ASSIGN;
+        case '<':
+            return LESS;
+        case '>':
+            return GREAT;
+        case '%':
+            return MOD;
+        case '!':
+            return NOT;
+        default:
+            return ERROR;
+       
+    }
+}
+enum TokenType find_dual_char_operator_type(char * value, int value_len) {
+    
+    if (value_len != 2) { return ERROR; }
+
+    if (strncmp(value, "++", 2) == 0) { return INCREMENT; }
+    if (strncmp(value, "--", 2) == 0) { return DECREMENT; }
+    if (strncmp(value, "**", 2) == 0) { return POWER; }
+    if (strncmp(value, "&&", 2) == 0) { return AND; }
+    if (strncmp(value, "||", 2) == 0) { return OR; }
+    if (strncmp(value, ">=", 2) == 0) { return GEQ; }
+    if (strncmp(value, "<=", 2) == 0) { return LEQ; }
+    if (strncmp(value, "==", 2) == 0) { return EQ; }
+
+    return ERROR;
+
+}
+enum TokenType find_separator_type(char separator) {
+    
+    switch(separator){
+        case '(':
+            return LPARENS;
+        case ')':
+            return RPARENS;
+        case '[':
+            return LBRACKET;
+        case ']':
+            return RBRACKET;
+        case '{':
+            return LBRACE;
+        case '}':
+            return RBRACE;
+        case ',':
+            return COMMA;
+        case ';':
+            return SEMICOLON;
+        default:
+            return ERROR;
+       
+    }
+
+}
+enum TokenType find_keyword_type(char * value, int value_len) {
+ 
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return FLOAT; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return RETURN; }
 
     return ERROR;
 
@@ -181,22 +190,28 @@ enum TokenType find_keyword_type(char * value, int value_len) {
 
 enum TokenType identify_token_type(char * value, int value_len) {
 
+    enum TokenType type;
+
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
         if (is_string(value, value_len))               { return STRING; }
-        if (is_dual_char_operator(value[0], value[1])) { return OPERATOR; }
         if (is_float(value, value_len))                { return FLOATING; }
 
-        enum TokenType type = find_keyword_type(value, value_len);
-        if (type != ERROR) {
-            return type;
-        }
+
+        type = find_dual_char_operator_type(value, value_len);
+        if (type != ERROR) { return type; }
+
+        type = find_keyword_type(value, value_len);
+        if (type != ERROR) { return type; }
     }
 
-    // Types that tokens of any non-empty length can be
-    if (is_integer(value, value_len))              { return INTEGER; }
-    if (is_separator(value[0]))                    { return find_separator_type(value[0]); }
-    if (is_single_char_operator(value[0]))         { return OPERATOR; }
+    if (is_integer(value, value_len)) { return INTEGER; }
+
+    type = find_separator_type(value[0]);
+    if (type != ERROR) { return type; }
+
+    type = find_single_char_operator_type(value[0]);
+    if (type != ERROR) { return type; }
 
     // Assume everything else is an identifier
     return IDENTIFIER;
