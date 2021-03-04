@@ -15,6 +15,7 @@ enum TokenType {
     INT,
     FLOAT,
     STR,
+    VAR,
 
     // SYMBOLS
     LPARENS,
@@ -64,5 +65,3 @@ typedef struct Token {
     enum TokenType tokentype;
 
 } Token;
-
-

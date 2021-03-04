@@ -1,0 +1,29 @@
+// Whitespace is ignored in the following BNF
+
+<integer>    ::= [0-9]*
+<float>      ::= <integer> "." <integer>
+<string>     ::= [a-zA-Z] | [a-zA-Z]<integer> | <string><string>
+<constant>   ::= <integer> | <float> | <string> 
+<identifier> ::= <string>
+
+<assignment_op> ::= "=" | "/=" | "*=" | "-=" | "+=", "%="
+<binary_op>     ::= "+" | "-" | "/" | "*" | "&" | "|" | "^" | "<" | ">" | "==" | "%" | "**" | "<=" | ">="
+<unary_op>      ::= "++" | "--" | "!"
+
+
+<assigment> ::= <identifier> <assigment_op> <expr>
+<expr>      ::=
+                | <unary_op> <expr>
+                | <expr> <unary_op>
+                | <expr> <binary_op> <expr>
+                | <factor>
+
+<factor>    ::=
+                | <identifier>
+                | <constant>
+                | "(" <expr> ")"
+
+<statement> ::=
+                | <assignment> ";"
+                | <expr> ";"
+

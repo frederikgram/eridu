@@ -1,14 +1,9 @@
-#include <stdio.h>                                                              
-#include <stdlib.h>                                                             
-#include <ctype.h>                                                              
-#include <string.h>                                                             
-#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-#include "tokens.h"
-
-#define CHARACTER_BUFFER_SIZE   1024
-#define ARRAY_OF_TOKENS_SIZE   102400
-
+#include "lexer.h"
 
 /* Operator & Separator definitions.
  * Keyword definitions are hardcoded into the
@@ -34,15 +29,15 @@ int is_separator(char c) {
     return 0;
 }
 
-
 int is_single_char_operator(char c) {
 
     for (int i = 0; i < num_single_char_operators; i++) {
-        if (c == single_char_operators[i]) { return 1; }
+        if (c == single_char_operators[i]) {
+            return 1;
+        }
     }
     return 0;
 }
-
 
 int is_dual_char_operator(char a, char b) {
 
@@ -54,7 +49,6 @@ int is_dual_char_operator(char a, char b) {
     return 0;
 
 }
-
 
 int is_float(char * value, int value_len){
 
@@ -146,6 +140,8 @@ enum TokenType find_dual_char_operator_type(char * value, int value_len) {
     return ERROR;
 
 }
+
+// @TODO Seems hardcoded and ugly
 enum TokenType find_separator_type(char separator) {
     
     switch(separator){
@@ -169,13 +165,15 @@ enum TokenType find_separator_type(char separator) {
             return ERROR;
        
     }
-
 }
+
+// @TODO this is _really_ ugly.
 enum TokenType find_keyword_type(char * value, int value_len) {
  
     if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return IF; }
     if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return FOR; }
     if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
+    if (value_len == 3 && strncmp(value, "var", 3) == 0)    { return VAR; }
     if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
     if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
     if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
@@ -194,8 +192,8 @@ enum TokenType identify_token_type(char * value, int value_len) {
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len))               { return STRING; }
-        if (is_float(value, value_len))                { return FLOATING; }
+        if (is_string(value, value_len)) { return STRING; }
+        if (is_float(value, value_len))  { return FLOATING; }
 
 
         type = find_dual_char_operator_type(value, value_len);
@@ -214,25 +212,10 @@ enum TokenType identify_token_type(char * value, int value_len) {
     if (type != ERROR) { return type; }
 
     // Assume everything else is an identifier
-    return IDENTIFIER;
+    // if the first char is an alphabet
+    if (isalpha(value[0]) != 0) { return IDENTIFIER; }
+    else { return ERROR; }
 }
-
-/* Lexer Utils */
-typedef struct LexerStatus {
-    char last_char;
-    char current_char;
-    char next_char;
-    int cursor;
-    int is_inside_comment;
-    int is_inside_string;
-
-    char buffer[CHARACTER_BUFFER_SIZE];
-    int buffer_len;
-
-    struct Token tokens[ARRAY_OF_TOKENS_SIZE];
-    int tokens_len;
-
-} LexerStatus;
 
 void _increment(LexerStatus * status, FILE * ptr) {
 
@@ -244,6 +227,7 @@ void _increment(LexerStatus * status, FILE * ptr) {
 
 void _build_token_from_buffer(LexerStatus * status) {
 
+    // Sanity Check
     if (status->buffer_len == 0){
         return;
     }
@@ -256,6 +240,10 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.end = status->cursor;
 
     token.tokentype = identify_token_type(token.value, token.length);
+    if (token.tokentype == ERROR) {
+        fprintf(stderr, "Lexical Error: No type could be identified for Token '%s'\n", token.value);
+        exit(1);
+    }
 
     // Reset Character Buffer
     status->buffer_len = 0;
@@ -266,19 +254,17 @@ void _build_token_from_buffer(LexerStatus * status) {
 
 void _add_current_char_to_buffer(LexerStatus * status) {
 
-        // If we're not inside a comment block, we can safely add the current
-        // character to our character buffer, to be used next time we build a token.
         status->buffer[status->buffer_len] = status->current_char;
         status->buffer_len++;
 }
 
-void main(int argc, char *argv[]){
-
+struct LexerStatus lex(char * filename) {
+    //
     // Load input file
     FILE * inp_fptr;
-    inp_fptr = fopen(argv[1], "r");
+    inp_fptr = fopen(filename, "r");
     if (inp_fptr == NULL){
-        fprintf(stderr, "Could not open file: '%s'\n", argv[1]);
+        fprintf(stderr, "Could not open file: '%s'\n", filename);
     }
 
     // Initialize Tracker
@@ -387,8 +373,5 @@ void main(int argc, char *argv[]){
        _increment(&status, inp_fptr);
     }
 
-    for (int i = 0; i < status.tokens_len; i++) {
-        printf("value\t%s\tstart\t%d\tend\t%d\ttype\t%d\n", status.tokens[i].value, status.tokens[i].start, status.tokens[i].end, status.tokens[i].tokentype);
-    }
-    
+    return status;
 }
