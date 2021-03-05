@@ -23,7 +23,8 @@
                 | <constant>
                 | "(" <expr> ")"
 
-<statement> ::=
+<statement> ::= | :q
+
                 | <assignment> ";"
                 | <expr> ";"
 

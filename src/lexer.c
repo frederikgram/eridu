@@ -96,29 +96,29 @@ enum TokenType find_single_char_operator_type(char operator){
 
     switch(operator){
         case '+':
-            return PLUS;
+            return TOK_PLUS;
         case '-':
-            return MINUS;
+            return TOK_MINUS;
         case '/':
-            return DIVIDE;
+            return TOK_DIVIDE;
         case '*':
-            return MULTIPLY;
+            return TOK_MULTIPLY;
         case '^':
-            return BIT_XOR;
+            return TOK_BIT_XOR;
         case '&':
-            return BIT_AND;
+            return TOK_BIT_AND;
         case '|':
-            return BIT_OR;
+            return TOK_BIT_OR;
         case '=':
-            return ASSIGN;
+            return TOK_ASSIGN;
         case '<':
-            return LESS;
+            return TOK_LESS;
         case '>':
-            return GREAT;
+            return TOK_GREAT;
         case '%':
-            return MOD;
+            return TOK_MOD;
         case '!':
-            return NOT;
+            return TOK_NOT;
         default:
             return ERROR;
        
@@ -128,14 +128,14 @@ enum TokenType find_dual_char_operator_type(char * value, int value_len) {
     
     if (value_len != 2) { return ERROR; }
 
-    if (strncmp(value, "++", 2) == 0) { return INCREMENT; }
-    if (strncmp(value, "--", 2) == 0) { return DECREMENT; }
-    if (strncmp(value, "**", 2) == 0) { return POWER; }
-    if (strncmp(value, "&&", 2) == 0) { return AND; }
-    if (strncmp(value, "||", 2) == 0) { return OR; }
-    if (strncmp(value, ">=", 2) == 0) { return GEQ; }
-    if (strncmp(value, "<=", 2) == 0) { return LEQ; }
-    if (strncmp(value, "==", 2) == 0) { return EQ; }
+    if (strncmp(value, "++", 2) == 0) { return TOK_INCREMENT; }
+    if (strncmp(value, "--", 2) == 0) { return TOK_DECREMENT; }
+    if (strncmp(value, "**", 2) == 0) { return TOK_POWER; }
+    if (strncmp(value, "&&", 2) == 0) { return TOK_AND; }
+    if (strncmp(value, "||", 2) == 0) { return TOK_OR; }
+    if (strncmp(value, ">=", 2) == 0) { return TOK_GEQ; }
+    if (strncmp(value, "<=", 2) == 0) { return TOK_LEQ; }
+    if (strncmp(value, "==", 2) == 0) { return TOK_EQ; }
 
     return ERROR;
 
@@ -146,21 +146,21 @@ enum TokenType find_separator_type(char separator) {
     
     switch(separator){
         case '(':
-            return LPARENS;
+            return TOK_LPARENS;
         case ')':
-            return RPARENS;
+            return TOK_RPARENS;
         case '[':
-            return LBRACKET;
+            return TOK_LBRACKET;
         case ']':
-            return RBRACKET;
+            return TOK_RBRACKET;
         case '{':
-            return LBRACE;
+            return TOK_LBRACE;
         case '}':
-            return RBRACE;
+            return TOK_RBRACE;
         case ',':
-            return COMMA;
+            return TOK_COMMA;
         case ';':
-            return SEMICOLON;
+            return TOK_SEMICOLON;
         default:
             return ERROR;
        
@@ -170,16 +170,15 @@ enum TokenType find_separator_type(char separator) {
 // @TODO this is _really_ ugly.
 enum TokenType find_keyword_type(char * value, int value_len) {
  
-    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return IF; }
-    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return FOR; }
-    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
-    if (value_len == 3 && strncmp(value, "var", 3) == 0)    { return VAR; }
-    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
-    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
-    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
-    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return FLOAT; }
-    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return DEFINE; }
-    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return RETURN; }
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return TOK_IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return TOK_FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return TOK_INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return TOK_STR; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return TOK_ELSE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return TOK_WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return TOK_FLOAT; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return TOK_DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return TOK_RETURN; }
 
     return ERROR;
 
@@ -192,8 +191,8 @@ enum TokenType identify_token_type(char * value, int value_len) {
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len)) { return STRING; }
-        if (is_float(value, value_len))  { return FLOATING; }
+        if (is_string(value, value_len)) { return TOK_STRING; }
+        if (is_float(value, value_len))  { return TOK_FLOATING; }
 
 
         type = find_dual_char_operator_type(value, value_len);
@@ -203,7 +202,7 @@ enum TokenType identify_token_type(char * value, int value_len) {
         if (type != ERROR) { return type; }
     }
 
-    if (is_integer(value, value_len)) { return INTEGER; }
+    if (is_integer(value, value_len)) { return TOK_INTEGER; }
 
     type = find_separator_type(value[0]);
     if (type != ERROR) { return type; }
@@ -213,7 +212,7 @@ enum TokenType identify_token_type(char * value, int value_len) {
 
     // Assume everything else is an identifier
     // if the first char is an alphabet
-    if (isalpha(value[0]) != 0) { return IDENTIFIER; }
+    if (isalpha(value[0]) != 0) { return TOK_IDENTIFIER; }
     else { return ERROR; }
 }
 

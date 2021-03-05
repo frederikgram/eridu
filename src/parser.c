@@ -9,7 +9,6 @@
 // Includes ast.h
 #include "parser.h"
 
-
 // Returns 1 on success, 0 on EOF
 int increment(ParserStatus * status) {
 
@@ -28,131 +27,175 @@ int increment(ParserStatus * status) {
     return 1;
 }
 
-int expect(struct Token * token, enum TokenType expected_type) {
-    return token->tokentype == expected_type;
+void _build_node(AST_NODE * this, AST_NODE * parent, Token * token, int prop_value){
+
+    this->parent = parent;
+    if (prop_value) {
+        strncpy(this->value, token->value, token->length);
+        this->value_len = token->length;
+    }
 }
 
-AST_NODE * _build_node(AST_NODE * parent, Token * token){
+void _eat_assignment(ParserStatus * parser, AST_NODE * this) {
+    // Assume that *this has already been malloc'd
 
-    AST_NODE astn;
-    astn.parent = parent;
-    astn.token = *token;
-    astn.num_children = 0;
-    return &astn;
+    this->children[0] = malloc(sizeof(AST_NODE));
+
+    // Ensure that our declaration starts
+    // with a literal token.
+    switch(parser->current_token->tokentype) {
+        case TOK_INT:
+            this->children[0]->type = AST_INT;
+        case TOK_STR:
+            this->children[0]->type = AST_STR;
+        case TOK_FLOAT:
+            this->children[0]->type = AST_FLOAT;
+            break;
+        default:
+            fprintf(stderr, "Variable declaration at position %d must start with a literal tag such as int or str\n", parser->current_token->start);
+            exit(-1);
+    }
+
+    // This node represents an ASSIGN statement
+    this->type = AST_ASSIGN;
+    increment(parser);
+    
+    if (parser->current_token->tokentype != TOK_IDENTIFIER) { exit(-1); }
+
+    // left-hand side of the ASSIGN node
+    // needs to contain the identifier and
+    // its expected type
+    this->children[0]->children[0] = malloc(sizeof(AST_NODE));
+    _build_node(this->children[0]->children[0], this->children[0], parser->current_token, 1);
+    increment(parser);
+    
+    // Sanity check, we want the token between the identifier
+    // and the following expression to me an equals sign
+    if (parser->current_token->tokentype != TOK_ASSIGN) { exit(-1); }
+    increment(parser);
+
+    // Get right hand side of the expression
+    this->children[1] = malloc(sizeof(AST_NODE));
+     _eat_expr(parser, this->children[1]);
+    increment(parser);
+
 }
 
-
-AST_NODE * _eat_expr(ParserStatus * parser) {
-    return;
+void _eat_statement_list(ParserStatus * parser, AST_NODE * this) {
+    increment(parser);
 }
 
-AST_NODE * _eat_statement(ParserStatus * parser) {
+void _eat_expression(ParserStatus * parser, AST_NODE * this) {
+    // Assume that *this has already been malloc'd
+
+    switch(parser->current_token->tokentype) {
+        case INTEGER:
+            this->type = AST_INTEGER;
+            this->value = parser->current_token->value;
+            this->value_len = parser->current_token->length;
+        case STRING:
+            this->type = AST_STRING;
+            this->value = parser->current_token->value;
+            this->value_len = parser->current_token->length;
+        case FLOATING:
+            this->type = AST_FLOATING;
+            this->value = parser->current_token->value;
+            this->value_len = parser->current_token->length;
+        default:
+            break;
+    }
+    
+    if (parser->current_token->tokentype == TOK_LPARENS) {
+        this->type = AST_PARENS_EXPR;
         
-    AST_NODE this;
-
-    switch(parser->current_token->value[0]) {
-        
-        // Handle compound statements
-        case '{':
-            this.children[0] = _build_node(&this, parser->current_token);
-            increment(parser);
-            this.children[1] = _eat_statement(parser);
-            
-            if (!expect(parser->current_token, RBRACKET)) {
-                fprintf(stderr, "Expected } at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[2] = _build_node(&this, parser->current_token);
-            this.num_children = 3;
-            break; 
-
-        // Handle return statements
-        case 'r':
-            this.children[0] = _build_node(&this, parser->current_token);
-
-            increment(parser);
-            this.children[1] = _eat_expr(parser);
-
-            if (!expect(parser->current_token, SEMICOLON)) {
-                fprintf(stderr, "Expected ; at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[2] = _build_node(&this, parser->current_token);
-            this.num_children = 3;
-            break;
-
-        // Handle if and while statements
-        case 'i':
-        case 'w':
-            this.children[0] = _build_node(&this, parser->current_token);
-            increment(parser);
-            
-            if (!expect(parser->current_token, LPARENS)) {
-                fprintf(stderr, "Expected ( at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[1] = _build_node(&this, parser->current_token);
-            increment(parser);
-            this.children[2] = _eat_expr(parser);
-
-            if (!expect(parser->current_token, RPARENS)) {
-                fprintf(stderr, "Expected ) at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[3] = _build_node(&this, parser->current_token);
-            increment(parser);
-            this.children[4] = _eat_statement(parser);
-            this.num_children = 5;
-            break;
-
-        // Handle variable definitions
-        case 'v':
-            this.children[0] = _build_node(&this, parser->current_token);
-            increment(parser);
-
-            if (!expect(parser->current_token, INT) || !expect(parser->current_token, FLOAT) || !expect(parser->current_token, STR)) {
-                fprintf(stderr, "Expected type declaration at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[1] = _build_node(&this, parser->current_token);
-
-            increment(parser);
-            if (!expect(parser->current_token, IDENTIFIER)) {
-                fprintf(stderr, "Expected type identifier for variable declaration at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-            this.children[2] = _build_node(&this, parser->current_token);
-
-            increment(parser);
-            if (!expect(parser->current_token, ASSIGN)) {
-                fprintf(stderr, "Expected assignment operator '=' after identifier at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-
-            this.children[3] = _build_node(&this, parser->current_token);
-
-            increment(parser);
-            this.children[4] = _eat_expr(parser);
-            
-            if (!expect(parser->current_token, SEMICOLON)) {
-                fprintf(stderr, "Expected ; after variable declaration at position %d\n", parser->current_token->start);
-                exit(1);
-            }
-            this.children[5] = _build_node(&this, parser->current_token);
-            this.num_children = 6; 
-            break;
-
-    }   
+        this->children[0] = malloc(sizeof(AST_NODE));
+        _eat_expression(parser, this->children[0]);
+        if (parser->current_token->tokentype == TOK_RPARENS) { exit(-1); }
+    }
 
     increment(parser);
-    return &this;
+}  
 
+void _eat_condition(ParserStatus * parser, AST_NODE * this) {
+    increment(parser);
+}  
+
+void _eat_statement(ParserStatus * parser, AST_NODE * this) {
+    // Assume that *this has already been malloc'd
+    
+    // Sadly, we can not just check for the first
+    // char in a token to identify the type of statement
+    // as e..g int and if has the same first char
+    // because of this, we need to use strncmp
+    
+    switch(parser->current_token->value[0]) {
+    
+        // Start of new block
+        case '{':
+            this->type = AST_BLOCK;
+            this->children[0] = malloc(sizeof(AST_NODE));
+            increment(parser);
+            _eat_statement_list(parser, this->children[0]);
+            if (parser->current_token->tokentype != TOK_RBRACKET) { exit(-1); }
+            increment(parser);
+            break;
+
+        // Start of while loop
+        case 'w':
+            this->type = AST_WHILE;
+            this->children[0] = malloc(sizeof(AST_NODE));
+            increment(parser);
+            _eat_condition(parser, this->children[0]);
+            if (parser->current_token->tokentype != TOK_LBRACKET) { exit(-1); }
+            increment(parser);
+            this->children[1] = malloc(sizeof(AST_NODE));
+            _eat_statement_list(parser, this->children[1]); 
+            break;
+
+        // Start of return statement
+        case 'r':
+            this->type = AST_RETURN;
+            this->children[0] = malloc(sizeof(AST_NODE));
+            increment(parser);
+            _eat_expression(parser, this->children[0]);
+            break;
+        case 'i':
+            // Start of assignment statement
+            if(strncmp(parser->current_token->value, "if", 2) == 0) {
+                this->children[0] = malloc(sizeof(AST_NODE));
+                _eat_assignment(parser, this->children[0]);
+                break;
+            }
+            // Start of if statement
+            this->type = AST_IF;
+            increment(parser);
+            if (parser->current_token->tokentype != TOK_LPARENS) { exit(-1); }
+            increment(parser);
+
+            this->children[0] = malloc(sizeof(AST_NODE));
+            _eat_expression(parser, this->children[0]);
+            if (parser->current_token->tokentype != TOK_RPARENS) { exit(-1); }
+            increment(parser);
+
+            this->children[1] = malloc(sizeof(AST_NODE));
+            _eat_statement(parser, this->children[1]);
+            break;
+    }
+
+    // Semicolon statement, weird huh?
+    if (parser->current_token->tokentype == TOK_SEMICOLON) {
+        this->type = AST_SEMICOLON;
+        increment(parser);
+    
+    // Plain expression statement
+    } else {
+        this->children[0] = malloc(sizeof(AST_NODE));
+        _eat_expression(parser, this->children[0]);
+        if (parser->current_token->tokentype != TOK_SEMICOLON) { exit(-1); }
+        increment(parser);
+    }
 }
+
 
 void main(int argc, char * argv[]) {
     
@@ -170,15 +213,13 @@ void main(int argc, char * argv[]) {
     parser.next_token = &parser.lexer.tokens[1];
 
     // Setup Abstract Syntax Tree 
-    AST ast;
     AST_NODE root;
-    parser.ast = ast;
-    parser.ast.root = root;
-    parser.ast.root.num_children = 0;
+    root.type = AST_PROG;
+    root.children[0] = malloc(sizeof(AST_NODE));
+    _eat_assignment(&parser, root.children[0]);
 
-    int c;
-    while((c = increment(&parser) != 0)){
-        printf("%s\n", parser.current_token->value);
-        _eat_statement(&parser);
+    if (root.children[0] == NULL) {
+        printf("Program was found to be empty");
+        exit(0);
     }
 }

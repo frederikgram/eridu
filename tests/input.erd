@@ -2,7 +2,7 @@
 
 
 /* Test Various Assignments and definitions */
-int    age = 31;
+int age = 31;
 string name = "John Doe";
 float  height = 1.78 ;
 
