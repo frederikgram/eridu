@@ -33,8 +33,10 @@ enum AST_NODE_TYPE {
     AST_PARAMS,
     AST_PARENS_EXPR,
     AST_BLOCK,
+    AST_EOF
 
 } AST_NODE_TYPE;
+
 
 typedef struct AST_NODE {
     struct AST_NODE * parent;
@@ -43,7 +45,7 @@ typedef struct AST_NODE {
 
     enum AST_NODE_TYPE type;
     char value [1024];
-    int value_len;
+    int length;
 } AST_NODE;
 
 

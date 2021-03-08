@@ -7,6 +7,8 @@ typedef struct ParserStatus {
     Token * current_token;
     Token * next_token;
     int token_idx;
+
+
     struct AST ast;
 
 
