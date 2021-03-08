@@ -94,17 +94,16 @@ AST_NODE eat_expression(ParserStatus * parser, AST_NODE * parent) {
     int length          = parser->current_token->length;
 
     // Check for pre-fix Unary Operators
-    if (type == TOK_NOT) {
-        this.type = AST_MINUS;
+    if (type == TOK_NOT || type == TOK_INCREMENT  || TOK_DECREMENT) {
+        this.type = (type == TOK_NOT ? (type == TOK_INCREMENT ? AST_INCREMENT : AST_DECREMENT) : AST_NOT);
 
         // Get the negated expression following the '!' operator
         increment(parser);
         AST_NODE expression = eat_expression(parser, parent);
         add_child(&expression, &this);
-    }
-
+        
     // Check for parenthesis encased expression
-    else if (type == TOK_LPARENS) {
+    } else if (type == TOK_LPARENS) {
         this.type = AST_PARENS_EXPR;
 
         // Get the encased expression
@@ -117,6 +116,8 @@ AST_NODE eat_expression(ParserStatus * parser, AST_NODE * parent) {
             fprintf(stderr, "Expected ')' at position %d\n", parser->current_token->start);
             exit(1);
         }
+
+        increment(parser);
 
     // Check for constants
     } else if (type == TOK_INTEGER || type == TOK_STRING || type == TOK_FLOATING || type == TOK_IDENTIFIER) {
@@ -171,10 +172,10 @@ AST_NODE eat_expression(ParserStatus * parser, AST_NODE * parent) {
             this.type = this_tokens_ast_type;
             strncpy(this.value, value, length);
             this.length = length;
+            increment(parser);
         }
     }
 
-    increment(parser);
     return this;
 }  
 

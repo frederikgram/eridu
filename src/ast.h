@@ -16,6 +16,7 @@ enum AST_NODE_TYPE {
     AST_MULT,
     AST_PLUS,
     AST_MINUS,
+    AST_NOT,
     AST_SUB,
     AST_DIV,
     AST_LESS,
@@ -34,7 +35,10 @@ enum AST_NODE_TYPE {
     AST_PARENS_EXPR,
     AST_BLOCK,
     AST_NULL,
-    AST_EOF
+    AST_EOF,
+    AST_INCREMENT,
+    AST_DECREMENT
+
 
 } AST_NODE_TYPE;
 
