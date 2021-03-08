@@ -33,6 +33,7 @@ enum AST_NODE_TYPE {
     AST_PARAMS,
     AST_PARENS_EXPR,
     AST_BLOCK,
+    AST_NULL,
     AST_EOF
 
 } AST_NODE_TYPE;

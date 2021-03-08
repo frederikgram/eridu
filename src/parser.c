@@ -57,22 +57,121 @@ int add_child(AST_NODE * child, AST_NODE * parent) {
 }
 
 
-/* Functions for Finite state machine-like behavior */
+/* Functions for identification and conversion of TOKEN and AST types */
 
+enum AST_NODE_TYPE binary_operator(enum TokenType type) {
+
+    switch (type) {
+        case TOK_MULTIPLY:
+            return AST_MULT;
+        case TOK_DIVIDE:
+            return AST_DIV;
+        case TOK_PLUS:
+            return AST_PLUS;
+        case TOK_MINUS:
+            return AST_SUB;
+        case TOK_EQ:
+            return AST_EQ;
+        case TOK_LESS:
+            return AST_LESS;
+        case TOK_GREAT:
+            return AST_GREAT;
+        default:
+            return AST_NULL;
+    }
+}
+
+/* Functions for Finite state machine-like behavior */
 
 AST_NODE eat_expression(ParserStatus * parser, AST_NODE * parent) {
     
     AST_NODE this = build_node(parent);
+    this.type = AST_NULL;
 
     // Shorthands
-    char * value  = parser->current_token->value;
-    int length    = parser->current_token->length;
+    enum TokenType type = parser->current_token->tokentype;
+    char * value        = parser->current_token->value;
+    int length          = parser->current_token->length;
 
-    if (parser->current_token->tokentype == TOK_INTEGER) {
-        this.type = AST_INTEGER;
-        strncpy(this.value, value, length);
-        this.length = length;
-        printf("%s\n", this.value);
+    // Check for pre-fix Unary Operators
+    if (type == TOK_NOT) {
+        this.type = AST_MINUS;
+
+        // Get the negated expression following the '!' operator
+        increment(parser);
+        AST_NODE expression = eat_expression(parser, parent);
+        add_child(&expression, &this);
+    }
+
+    // Check for parenthesis encased expression
+    else if (type == TOK_LPARENS) {
+        this.type = AST_PARENS_EXPR;
+
+        // Get the encased expression
+        increment(parser);
+        AST_NODE expression = eat_expression(parser, parent);
+        add_child(&expression, &this);
+
+        // Assert a right parenthesis terminator
+        if (parser->current_token->tokentype != TOK_RPARENS) {
+            fprintf(stderr, "Expected ')' at position %d\n", parser->current_token->start);
+            exit(1);
+        }
+
+    // Check for constants
+    } else if (type == TOK_INTEGER || type == TOK_STRING || type == TOK_FLOATING || type == TOK_IDENTIFIER) {
+        
+
+        // Get the AST type for the current token,
+        // to avoid having to do this check
+        // for both the case of binary and
+        // constant expressions
+        enum AST_NODE_TYPE this_tokens_ast_type;
+
+        switch(type) {
+            case TOK_INTEGER:
+                this_tokens_ast_type = AST_INTEGER;
+                break;
+            case TOK_STRING:
+                this_tokens_ast_type = AST_STRING;
+                break;
+            case TOK_FLOATING:
+                this_tokens_ast_type = AST_FLOATING;
+                break;
+            case TOK_IDENTIFIER:
+                this_tokens_ast_type = AST_IDENTIFIER;
+                break;
+            default:
+                this_tokens_ast_type = AST_NULL;
+        }
+
+        // Check for binary operators
+        enum AST_NODE_TYPE bot;
+        if ((bot = binary_operator(parser->next_token->tokentype)) != AST_NULL) {
+            this.type = bot;
+
+            // Build left hand side of binary expression
+            AST_NODE left_side = build_node(&this);
+            left_side.type = this_tokens_ast_type;
+            strncpy(left_side.value, parser->current_token->value, parser->current_token->length);
+            left_side.length = parser->current_token->length;
+            add_child(&left_side, &this);
+
+            // Get right hand side of binary expression
+            // we increment twice since we used the
+            // parser->next_token to identify
+            // if we had a binary operator or not
+            increment(parser);
+            increment(parser);
+            AST_NODE right_side = eat_expression(parser, &this);
+            add_child(&right_side, &this);
+
+        } else {
+            
+            this.type = this_tokens_ast_type;
+            strncpy(this.value, value, length);
+            this.length = length;
+        }
     }
 
     increment(parser);
@@ -90,7 +189,7 @@ AST_NODE eat_assignment(ParserStatus * parser, AST_NODE * parent) {
 AST_NODE eat_statement(ParserStatus * parser, AST_NODE * parent) {
 
     AST_NODE this = build_node(parent);
-    this.type = AST_EOF;
+    this.type = AST_NULL;
 
     // Shorthands
     char * value  = parser->current_token->value;
@@ -189,7 +288,7 @@ AST_NODE eat_statement(ParserStatus * parser, AST_NODE * parent) {
         } else if (strncmp(value, "int", 3) == 0 || strncmp(value, "str", 3) == 0 || strncmp(value, "float", 5) == 0) {
             
             // Setup AST_NODE attributes
-            // This nested ternary just find the corrent INT, STR, or FLOAT type.
+            // This nested ternary just finds the correct INT, STR, or FLOAT type.
             this.type = (parser->current_token->tokentype == TOK_INT ? (parser->current_token->tokentype == TOK_STR ? AST_STR : AST_FLOAT) : AST_INT);
             strncpy(this.value, value, length);
             this.length = length;
@@ -224,6 +323,7 @@ AST_NODE eat_statement(ParserStatus * parser, AST_NODE * parent) {
                 fprintf(stderr, "Expected ';' at position %d, got value: %s\n", parser->current_token->start, parser->current_token->value);
                 exit(1);
             }
+            increment(parser);
         }
 
     return this;
@@ -231,7 +331,7 @@ AST_NODE eat_statement(ParserStatus * parser, AST_NODE * parent) {
 
 AST_NODE eat_statement_list(ParserStatus * parser, AST_NODE * parent) {
     AST_NODE stmt;
-    while((stmt = eat_statement(parser, parent)).type != AST_EOF) {
+    while((stmt = eat_statement(parser, parent)).type != AST_NULL) {
         add_child(&stmt, parent);
     }
 }  
@@ -240,7 +340,7 @@ void main(int argc, char * argv[]) {
     
     // Validate Arguments
     if (argv[1] == NULL) {
-        fprintf(stderr, "No input file was given");
+        fprintf(stderr, "No input file was given\n");
         exit(1);
     }
 
@@ -268,7 +368,7 @@ void main(int argc, char * argv[]) {
     AST_NODE statement_list = eat_statement_list(&parser, &parser.ast.root);
     add_child(&statement_list, &parser.ast.root);
 
-    // Visualize the built Abstract Syntax Tree
+    // Visualize the final Abstract Syntax Tree
     
 }
 
