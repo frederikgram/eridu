@@ -2,11 +2,13 @@
 
 
 /* Test Various Assignments and definitions */
-int age = 31;
-string name = "John Doe";
+int age = 1+1;
+str name = "John Doe";
 float  height = 1.78 ;
+int test_unary = !2;
 
-define LargerThanThree(int a) {
+
+define int LargerThanThree(int a, int b) {
     
     if (a > 3) { return 1; }
     return 0;
@@ -18,11 +20,11 @@ int   a = 4;
 int   b = 6;
 float c = 8.0;
 
-int d = a /= b ** c;
+int d = a / b ** c;
 
 /* Test some more reserved keywords */
 if (d % 12 >= 2) {
-    d = d ^ 1;
+
 }
 
 while (a % c > 0) {
@@ -33,7 +35,7 @@ for (int i = 0; i < c; i++) {
     b--;
 }
 
-define takes_more_params(int age, string name, float height) {
+define int takes_more_params(int age, str name, float height) {
     /* Does Nothing */
     return 1;
 }
