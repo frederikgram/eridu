@@ -3,7 +3,6 @@
 #define CHARACTER_BUFFER_SIZE 1024
 #define ARRAY_OF_TOKENS_SIZE    102400
 
-
 /* Lexer Utils */
 typedef struct LexerStatus {
     char last_char;

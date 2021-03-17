@@ -24,18 +24,11 @@ int d = a / b ** c;
 
 /* Test some more reserved keywords */
 if (d % 12 >= 2) {
-
+  d = 1;
 }
 
-while (a % c > 0) {
-   c++; 
-}
-
-for (int i = 0; i < c; i++) {
-    b--;
-}
 
 define int takes_more_params(int age, str name, float height) {
     /* Does Nothing */
-    return 1;
+    return 19;
 }

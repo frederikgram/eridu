@@ -92,128 +92,128 @@ int is_string(char * value, int value_len) {
  * @TODO This seems so hardcoded and ugly... 
  * maybe I could implement a hashmap style solution instead
  */
-enum TokenType find_single_char_operator_type(char operator){
+enum CT_Type find_single_char_operator_type(char operator){
 
     switch(operator){
         case '+':
-            return TOK_PLUS;
+            return CT_PLUS;
         case '-':
-            return TOK_MINUS;
+            return CT_MINUS;
         case '/':
-            return TOK_DIVIDE;
+            return CT_DIVIDE;
         case '*':
-            return TOK_MULTIPLY;
+            return CT_MULTIPLY;
         case '^':
-            return TOK_BIT_XOR;
+            return CT_BIT_XOR;
         case '&':
-            return TOK_BIT_AND;
+            return CT_BIT_AND;
         case '|':
-            return TOK_BIT_OR;
+            return CT_BIT_OR;
         case '=':
-            return TOK_ASSIGN;
+            return CT_ASSIGN;
         case '<':
-            return TOK_LESS;
+            return CT_LESS;
         case '>':
-            return TOK_GREAT;
+            return CT_GREAT;
         case '%':
-            return TOK_MOD;
+            return CT_MOD;
         case '!':
-            return TOK_NOT;
+            return CT_NOT;
         default:
-            return ERROR;
+            return CT_ERROR;
        
     }
 }
-enum TokenType find_dual_char_operator_type(char * value, int value_len) {
+enum CT_Type find_dual_char_operator_type(char * value, int value_len) {
     
-    if (value_len != 2) { return ERROR; }
+    if (value_len != 2) { return CT_ERROR; }
 
-    if (strncmp(value, "++", 2) == 0) { return TOK_INCREMENT; }
-    if (strncmp(value, "--", 2) == 0) { return TOK_DECREMENT; }
-    if (strncmp(value, "**", 2) == 0) { return TOK_POWER; }
-    if (strncmp(value, "&&", 2) == 0) { return TOK_AND; }
-    if (strncmp(value, "||", 2) == 0) { return TOK_OR; }
-    if (strncmp(value, ">=", 2) == 0) { return TOK_GEQ; }
-    if (strncmp(value, "<=", 2) == 0) { return TOK_LEQ; }
-    if (strncmp(value, "==", 2) == 0) { return TOK_EQ; }
+    if (strncmp(value, "++", 2) == 0) { return CT_INCREMENT; }
+    if (strncmp(value, "--", 2) == 0) { return CT_DECREMENT; }
+    if (strncmp(value, "**", 2) == 0) { return CT_POWER; }
+    if (strncmp(value, "&&", 2) == 0) { return CT_AND; }
+    if (strncmp(value, "||", 2) == 0) { return CT_OR; }
+    if (strncmp(value, ">=", 2) == 0) { return CT_GEQ; }
+    if (strncmp(value, "<=", 2) == 0) { return CT_LEQ; }
+    if (strncmp(value, "==", 2) == 0) { return CT_EQ; }
 
-    return ERROR;
+    return CT_ERROR;
 
 }
 
 // @TODO Seems hardcoded and ugly
-enum TokenType find_separator_type(char separator) {
+enum CT_Type find_separator_type(char separator) {
     
     switch(separator){
         case '(':
-            return TOK_LPARENS;
+            return CT_LPARENS;
         case ')':
-            return TOK_RPARENS;
+            return CT_RPARENS;
         case '[':
-            return TOK_LBRACKET;
+            return CT_LBRACKET;
         case ']':
-            return TOK_RBRACKET;
+            return CT_RBRACKET;
         case '{':
-            return TOK_LBRACE;
+            return CT_LBRACE;
         case '}':
-            return TOK_RBRACE;
+            return CT_RBRACE;
         case ',':
-            return TOK_COMMA;
+            return CT_COMMA;
         case ';':
-            return TOK_SEMICOLON;
+            return CT_SEMICOLON;
         default:
-            return ERROR;
+            return CT_ERROR;
        
     }
 }
 
 // @TODO this is _really_ ugly.
-enum TokenType find_keyword_type(char * value, int value_len) {
+enum CT_Type find_keyword_type(char * value, int value_len) {
  
-    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return TOK_IF; }
-    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return TOK_FOR; }
-    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return TOK_INT; }
-    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return TOK_STR; }
-    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return TOK_ELSE; }
-    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return TOK_WHILE; }
-    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return TOK_FLOAT; }
-    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return TOK_DEFINE; }
-    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return TOK_RETURN; }
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return CT_IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return CT_FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return CT_INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return CT_STR; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return CT_ELSE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return CT_WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return CT_FLOAT; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return CT_DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return CT_RETURN; }
 
-    return ERROR;
+    return CT_ERROR;
 
 }
 
 
-enum TokenType identify_token_type(char * value, int value_len) {
+enum CT_Type identify_token_type(char * value, int value_len) {
 
-    enum TokenType type;
+    enum CT_Type type;
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len)) { return TOK_STRING; }
-        if (is_float(value, value_len))  { return TOK_FLOATING; }
+        if (is_string(value, value_len)) { return CT_STRING; }
+        if (is_float(value, value_len))  { return CT_FLOATING; }
 
 
         type = find_dual_char_operator_type(value, value_len);
-        if (type != ERROR) { return type; }
+        if (type != CT_ERROR) { return type; }
 
         type = find_keyword_type(value, value_len);
-        if (type != ERROR) { return type; }
+        if (type != CT_ERROR) { return type; }
     }
 
-    if (is_integer(value, value_len)) { return TOK_INTEGER; }
+    if (is_integer(value, value_len)) { return CT_INTEGER; }
 
     type = find_separator_type(value[0]);
-    if (type != ERROR) { return type; }
+    if (type != CT_ERROR) { return type; }
 
     type = find_single_char_operator_type(value[0]);
-    if (type != ERROR) { return type; }
+    if (type != CT_ERROR) { return type; }
 
     // Assume everything else is an identifier
     // if the first char is an alphabet
-    if (isalpha(value[0]) != 0) { return TOK_IDENTIFIER; }
-    else { return ERROR; }
+    if (isalpha(value[0]) != 0) { return CT_IDENTIFIER; }
+    else { return CT_ERROR; }
 }
 
 void _increment(LexerStatus * status, FILE * ptr) {
@@ -239,7 +239,7 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.end = status->cursor;
 
     token.tokentype = identify_token_type(token.value, token.length);
-    if (token.tokentype == ERROR) {
+    if (token.tokentype == CT_ERROR) {
         fprintf(stderr, "Lexical Error: No type could be identified for Token '%s'\n", token.value);
         exit(1);
     }
