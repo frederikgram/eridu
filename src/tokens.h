@@ -20,7 +20,7 @@ enum TokenType {
     CALLABLE,
     TYPE,
     LAMBDA,
-    BYTES,
+    BYTE,
 
     // Structural Types
     PARENS_EXPR,

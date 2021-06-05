@@ -5,6 +5,15 @@
 
 int age = 1+1;
 
+array bytes = [10011100, 11110000,00110011];
+array int values = [1,2,3,4,5];
+
+callable addr = lambda (x,y,z) = {x+y+z};
+
+define struct DATASET {
+    array byte data;
+    callable data_reader;
+}
 
 str name = "John Doe";
 float  height = 1.78 ;
