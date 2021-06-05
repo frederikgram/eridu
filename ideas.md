@@ -39,7 +39,7 @@ define struct DATASET {
     callable reader;
 }
 
-define str reader(bytes data) {
+define str reader(array byte data) {
     /* Convert bytes into some proper string that it represents */
     return ...
 
