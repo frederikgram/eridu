@@ -1,67 +1,67 @@
-enum CT_Type {
+enum TokenType {
     
     // Primitives
-    CT_INTEGER,
-    CT_FLOATING,
-    CT_STRING,
-    
+    INTEGER,
+    FLOATING,
+    STRING,
+
     // Keywords
-    CT_IF,
-    CT_WHILE,
-    CT_DEFINE,
-    CT_ELSE,
-    CT_FOR,
-    CT_RETURN,
-    CT_INT,
-    CT_FLOAT,
-    CT_STR,
+    IF,
+    WHILE,
+    DEFINE,
+    ELSE,
+    FOR,
+    RETURN,
+    INT,
+    FLOAT,
+    STR,
+    STRUCT,
 
     // Structural Types
-    CT_PARENS_EXPR,
-    CT_PROG,
+    PARENS_EXPR,
+    PROG,
     
     // Seperators
-    CT_LPARENS,
-    CT_RPARENS,
-    CT_LBRACE,
-    CT_RBRACE,
-    CT_LBRACKET,
-    CT_RBRACKET,
-    CT_COMMA,
-    CT_SEMICOLON,
+    LPARENS,
+    RPARENS,
+    LBRACE,
+    RBRACE,
+    LBRACKET,
+    RBRACKET,
+    COMMA,
+    SEMICOLON,
 
     // Binary Operators
-    CT_PLUS,
-    CT_MINUS,
-    CT_DIVIDE,
-    CT_MULTIPLY,
-    CT_POWER,
-    CT_AND,
-    CT_OR,
-    CT_GEQ,
-    CT_LEQ,
-    CT_EQ,
-    CT_MOD,
-    CT_GREAT,
-    CT_LESS,
+    PLUS,
+    MINUS,
+    DIVIDE,
+    MULTIPLY,
+    POWER,
+    AND,
+    OR,
+    GEQ,
+    LEQ,
+    EQ,
+    MOD,
+    GREAT,
+    LESS,
 
-    // CT_ASSIGN also functions
+    // ASSIGN also functions
     // as a reserved keyword
-    CT_ASSIGN,
+    ASSIGN,
 
     // Binary Bit Operators
-    CT_BIT_XOR,
-    CT_BIT_AND,
-    CT_BIT_OR,
+    BIT_XOR,
+    BIT_AND,
+    BIT_OR,
 
     // Unary operators
-    CT_NOT,
-    CT_INCREMENT,
-    CT_DECREMENT,
+    NOT,
+    INCREMENT,
+    DECREMENT,
 
     // Utils
-    CT_IDENTIFIER,
-    CT_ERROR,
-    CT_NULL
+    IDENTIFIER,
+    ERROR
 
-} CT_Type;
+} Type;

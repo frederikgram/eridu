@@ -6,6 +6,6 @@ typedef struct Token {
     int length;
     int start;
     int end;
-    enum CT_Type tokentype;
+    enum TokenType tokentype;
 
 } Token;

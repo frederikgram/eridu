@@ -5,10 +5,6 @@
 
 #include "lexer.h"
 
-/* Operator & Separator definitions.
- * Keyword definitions are hardcoded into the
- * find_keyword_type() function
- */
 const char separators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
 const int num_separators = sizeof(separators) / sizeof(char);
 
@@ -20,7 +16,6 @@ const int num_dual_char_operators = 8;
 
 /* Type Checkers */
 int is_separator(char c) {
-    
     for (int i = 0; i < num_separators; i++) {
         if (c == separators[i]) {
             return 1;
@@ -30,7 +25,6 @@ int is_separator(char c) {
 }
 
 int is_single_char_operator(char c) {
-
     for (int i = 0; i < num_single_char_operators; i++) {
         if (c == single_char_operators[i]) {
             return 1;
@@ -40,7 +34,6 @@ int is_single_char_operator(char c) {
 }
 
 int is_dual_char_operator(char a, char b) {
-
     for (int i = 0; i < num_dual_char_operators; i++) {
         if (a == dual_char_operators[i][0] && b == dual_char_operators[i][1]) { 
             return 1;
@@ -53,7 +46,6 @@ int is_dual_char_operator(char a, char b) {
 int is_float(char * value, int value_len){
 
     int has_radix_point = 0;
-
     for (int i = 0; i < value_len; i++){
         if (isdigit(value[i]) == 0) {
             if (value[i] == '.' && has_radix_point == 0) {
@@ -80,140 +72,132 @@ int is_integer(char * value, int value_len) {
 }
 
 int is_string(char * value, int value_len) {
-
-    // Check if value starts end ends with quotation marks
     if(value_len >= 2 && value[0] == '"' && value[value_len-1] == '"'){
         return 1;
     }
     return 0;
 }
 
-/* Token Type Identifiers 
- * @TODO This seems so hardcoded and ugly... 
- * maybe I could implement a hashmap style solution instead
- */
-enum CT_Type find_single_char_operator_type(char operator){
-
+enum TokenType find_single_char_operator_type(char operator){
     switch(operator){
         case '+':
-            return CT_PLUS;
+            return PLUS;
         case '-':
-            return CT_MINUS;
+            return MINUS;
         case '/':
-            return CT_DIVIDE;
+            return DIVIDE;
         case '*':
-            return CT_MULTIPLY;
+            return MULTIPLY;
         case '^':
-            return CT_BIT_XOR;
+            return BIT_XOR;
         case '&':
-            return CT_BIT_AND;
+            return BIT_AND;
         case '|':
-            return CT_BIT_OR;
+            return BIT_OR;
         case '=':
-            return CT_ASSIGN;
+            return ASSIGN;
         case '<':
-            return CT_LESS;
+            return LESS;
         case '>':
-            return CT_GREAT;
+            return GREAT;
         case '%':
-            return CT_MOD;
+            return MOD;
         case '!':
-            return CT_NOT;
+            return NOT;
         default:
-            return CT_ERROR;
+            return ERROR;
        
     }
 }
-enum CT_Type find_dual_char_operator_type(char * value, int value_len) {
+enum TokenType find_dual_char_operator_type(char * value, int value_len) {
     
-    if (value_len != 2) { return CT_ERROR; }
+    if (value_len != 2) { return ERROR; }
 
-    if (strncmp(value, "++", 2) == 0) { return CT_INCREMENT; }
-    if (strncmp(value, "--", 2) == 0) { return CT_DECREMENT; }
-    if (strncmp(value, "**", 2) == 0) { return CT_POWER; }
-    if (strncmp(value, "&&", 2) == 0) { return CT_AND; }
-    if (strncmp(value, "||", 2) == 0) { return CT_OR; }
-    if (strncmp(value, ">=", 2) == 0) { return CT_GEQ; }
-    if (strncmp(value, "<=", 2) == 0) { return CT_LEQ; }
-    if (strncmp(value, "==", 2) == 0) { return CT_EQ; }
+    if (strncmp(value, "++", 2) == 0) { return INCREMENT; }
+    if (strncmp(value, "--", 2) == 0) { return DECREMENT; }
+    if (strncmp(value, "**", 2) == 0) { return POWER; }
+    if (strncmp(value, "&&", 2) == 0) { return AND; }
+    if (strncmp(value, "||", 2) == 0) { return OR; }
+    if (strncmp(value, ">=", 2) == 0) { return GEQ; }
+    if (strncmp(value, "<=", 2) == 0) { return LEQ; }
+    if (strncmp(value, "==", 2) == 0) { return EQ; }
 
-    return CT_ERROR;
+    return ERROR;
 
 }
 
-// @TODO Seems hardcoded and ugly
-enum CT_Type find_separator_type(char separator) {
+enum TokenType find_separator_type(char separator) {
     
     switch(separator){
         case '(':
-            return CT_LPARENS;
+            return LPARENS;
         case ')':
-            return CT_RPARENS;
+            return RPARENS;
         case '[':
-            return CT_LBRACKET;
+            return LBRACKET;
         case ']':
-            return CT_RBRACKET;
+            return RBRACKET;
         case '{':
-            return CT_LBRACE;
+            return LBRACE;
         case '}':
-            return CT_RBRACE;
+            return RBRACE;
         case ',':
-            return CT_COMMA;
+            return COMMA;
         case ';':
-            return CT_SEMICOLON;
+            return SEMICOLON;
         default:
-            return CT_ERROR;
+            return ERROR;
        
     }
 }
 
-// @TODO this is _really_ ugly.
-enum CT_Type find_keyword_type(char * value, int value_len) {
+enum TokenType find_keyword_type(char * value, int value_len) {
  
-    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return CT_IF; }
-    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return CT_FOR; }
-    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return CT_INT; }
-    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return CT_STR; }
-    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return CT_ELSE; }
-    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return CT_WHILE; }
-    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return CT_FLOAT; }
-    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return CT_DEFINE; }
-    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return CT_RETURN; }
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return FLOAT; }
+    if (value_len == 6 && strncmp(value, "struct", 6) == 0) { return STRUCT; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return RETURN; }
 
-    return CT_ERROR;
+    return ERROR;
 
 }
 
 
-enum CT_Type identify_token_type(char * value, int value_len) {
+enum TokenType identify_token_type(char * value, int value_len) {
 
-    enum CT_Type type;
+    enum TokenType type;
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len)) { return CT_STRING; }
-        if (is_float(value, value_len))  { return CT_FLOATING; }
+        if (is_string(value, value_len)) { return STRING; }
+        if (is_float(value, value_len))  { return FLOATING; }
 
 
         type = find_dual_char_operator_type(value, value_len);
-        if (type != CT_ERROR) { return type; }
+        if (type != ERROR) { return type; }
 
         type = find_keyword_type(value, value_len);
-        if (type != CT_ERROR) { return type; }
+        if (type != ERROR) { return type; }
     }
 
-    if (is_integer(value, value_len)) { return CT_INTEGER; }
+    if (is_integer(value, value_len)) { return INTEGER; }
 
     type = find_separator_type(value[0]);
-    if (type != CT_ERROR) { return type; }
+    if (type != ERROR) { return type; }
 
     type = find_single_char_operator_type(value[0]);
-    if (type != CT_ERROR) { return type; }
+    if (type != ERROR) { return type; }
 
-    // Assume everything else is an identifier
-    // if the first char is an alphabet
-    if (isalpha(value[0]) != 0) { return CT_IDENTIFIER; }
-    else { return CT_ERROR; }
+    /* Assume everything else is an identifier 
+    as long as the first character is an alpha character */
+    if (isalpha(value[0]) != 0) { return IDENTIFIER; }
+    else { return ERROR; }
 }
 
 void _increment(LexerStatus * status, FILE * ptr) {
@@ -227,9 +211,7 @@ void _increment(LexerStatus * status, FILE * ptr) {
 void _build_token_from_buffer(LexerStatus * status) {
 
     // Sanity Check
-    if (status->buffer_len == 0){
-        return;
-    }
+    if (status->buffer_len == 0){ return; }
 
     struct Token token;
     token.value = malloc(sizeof(char) * (status->buffer_len + 1));
@@ -239,10 +221,15 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.end = status->cursor;
 
     token.tokentype = identify_token_type(token.value, token.length);
-    if (token.tokentype == CT_ERROR) {
+
+    if (token.tokentype == ERROR) {
         fprintf(stderr, "Lexical Error: No type could be identified for Token '%s'\n", token.value);
         exit(1);
     }
+
+    #ifdef LEXER_PRINT
+        fprintf(stdout, "TOKEN: %s\n", token.value);
+    #endif
 
     // Reset Character Buffer
     status->buffer_len = 0;
@@ -258,7 +245,7 @@ void _add_current_char_to_buffer(LexerStatus * status) {
 }
 
 struct LexerStatus lex(char * filename) {
-    //
+
     // Load input file
     FILE * inp_fptr;
     inp_fptr = fopen(filename, "r");
@@ -374,3 +361,19 @@ struct LexerStatus lex(char * filename) {
 
     return status;
 }
+
+
+int main(int argc, char * argv[]) {
+    if (argc != 2) {
+        return -1;
+    }
+    printf("LEXER: Attempting to lex file '%s'\n", argv[1]);
+    struct LexerStatus lexer = lex(argv[1]);
+    for (int i = 0; i < lexer.tokens_len; i++) {
+        printf("TOKEN %i:\t%s\n", i, lexer.tokens[i].value);
+    }
+    
+    return 0;
+}
+
+
