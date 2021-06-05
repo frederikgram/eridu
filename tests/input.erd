@@ -7,17 +7,16 @@ int age = 1+1;
 
 array bytes = [10011100, 11110000,00110011];
 
-// Array values initialized at compile-time
+/* Array values initialized at compile-time /
 array int values = [1,2,3,4,5];
 
-// Empty array
+/* Empty array */
 array str names = []
 
-// Uninitialized Array
+/* Uninitialized Array */
 array str fruits;
 
-// Array of fixed size
-// no example, don't know how the syntax should be
+/* Array of fixed size : no example, don't know how the syntax should be */
 
 callable addr = lambda (x,y,z) = {x+y+z};
 
