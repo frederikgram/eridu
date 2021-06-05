@@ -24,8 +24,6 @@ typedef struct LexerStatus {
 
 } LexerStatus;
 
-struct LexerStatus lex(char * filename);
-
 
 const char separators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
 const int num_separators = sizeof(separators) / sizeof(char);

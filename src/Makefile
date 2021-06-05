@@ -1,5 +1,5 @@
 CC = gcc
-DEPS = lexer.h enums.h tokens.h
+DEPS = tokens.h
 OBJS = lexer.o 
 lexer: $(OBJS)
 	$(CC) -o $@ $^
