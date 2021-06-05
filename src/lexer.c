@@ -178,11 +178,16 @@ enum TokenType find_keyword_type(char * value, int value_len) {
     if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
     if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
     if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
+    if (value_len == 4 && strncmp(value, "type", 4) == 0)   { return TYPE; }
     if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
     if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return FLOAT; }
+    if (value_len == 5 && strncmp(value, "bytes", 5) == 0)  { return BYTES; }
+    if (value_len == 5 && strncmp(value, "array", 5) == 0)  { return ARRAY; }
     if (value_len == 6 && strncmp(value, "struct", 6) == 0) { return STRUCT; }
+    if (value_len == 6 && strncmp(value, "lambda", 6) == 0) { return LAMBDA; }
     if (value_len == 6 && strncmp(value, "define", 6) == 0) { return DEFINE; }
     if (value_len == 6 && strncmp(value, "return", 6) == 0) { return RETURN; }
+    if (value_len == 8 && strncmp(value, "callable", 8) == 0) { return CALLABLE; }
 
     return ERROR;
 

@@ -16,6 +16,11 @@ enum TokenType {
     FLOAT,
     STR,
     STRUCT,
+    ARRAY,
+    CALLABLE,
+    TYPE,
+    LAMBDA,
+    BYTES,
 
     // Structural Types
     PARENS_EXPR,
