@@ -35,7 +35,7 @@ As in many other languages, we should have a type dedicated to storing callables
 Example:
 ```c
 define struct DATASET {
-    array bytes data;
+    array byte data;
     callable reader;
 }
 
