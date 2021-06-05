@@ -3,7 +3,29 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "lexer.h"
+#include "tokens.h"
+
+#define STD_CHARACTER_BUFFER_SIZE 1024
+#define STD_ARRAY_OF_TOKENS_SIZE    102400
+
+typedef struct LexerStatus {
+    char last_char;
+    char current_char;
+    char next_char;
+    int cursor;
+    int is_inside_comment;
+    int is_inside_string;
+
+    char buffer[STD_CHARACTER_BUFFER_SIZE];
+    int buffer_len;
+
+    struct Token tokens[STD_ARRAY_OF_TOKENS_SIZE];
+    int tokens_len;
+
+} LexerStatus;
+
+struct LexerStatus lex(char * filename);
+
 
 const char separators[] = {'(', ')', '{', '}', ';', '[', ']', ':', ','};
 const int num_separators = sizeof(separators) / sizeof(char);
@@ -233,6 +255,7 @@ void _build_token_from_buffer(LexerStatus * status) {
 
     // Reset Character Buffer
     status->buffer_len = 0;
+
     status->tokens[status->tokens_len] = token;
     status->tokens_len++;
 
@@ -255,6 +278,7 @@ struct LexerStatus lex(char * filename) {
 
     // Initialize Tracker
     struct LexerStatus status;
+
     status.last_char = '\0';
     status.current_char = fgetc(inp_fptr);
     status.next_char    = fgetc(inp_fptr);
