@@ -30,7 +30,7 @@ Be aware of run-time errors!
 
 
 ## Callables As Types
-As in many other languages, we should have a type dedicated to storing callables.  This is not to promote OOP but moreso to make a nicer version of C's function pointers.
+As in many other languages, we should have a type dedicated to storing callables.  This is not to promote OOP but more so to make a nicer version of C's function pointers.
 
 Example:
 ```c
