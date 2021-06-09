@@ -1,0 +1,38 @@
+maybe an "address" type, to make pointers in Eridu work
+addressof() functions etc
+
+
+types could be wrappable, so like
+
+define array address getSomeAddresses(){}
+define address array int getAddressesOfSomeInts(){}
+define array address array int getArrayOfAddressesOfArraysOfInts(){}
+
+maybe []
+
+define [array address int] getArrayOfIntegerAddresses(){}
+
+type my_type = array address array array int;
+define [my_type] getArrayOfAddressesOf2DMatrixOfInteger(){}
+
+
+dynamic types for defining functions doesnt relaly do much, as functions can only be 
+defined at compile-time.  However it might just be possible by reason of generalized enums in the parser.
+not run-time function definitions that is, but using type variables to compile-time define functions
+
+all functions cna return NULL though, 
+
+
+
+WRITE TEST PARSER IN PYTHON USING C LEXER TO TEST STUFF BEFORE LASSE JOINS
+
+also typeof()
+maybe monads
+
+
+
+IN PARSER:
+maybe make an "expect" that can take wrappers, so like expect_wrapped(TOKENTYPES.EXPR, WRAPPERTYPES.BRACKETS)
+instead of having three seperate expect calls.  This would return either an EXPR or maybe [LBRACK, EXPR, RBRACK] on success
+
+nest block comments in lexer, use stack instead of flag for measuring if inside commnets

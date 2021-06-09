@@ -36,6 +36,12 @@ struct LINKED_LIST_NODE {
 
 }
 
+
+struct TEST {
+    int len = 0;
+    array str names;
+}
+
 define int LargerThanThree(int a, int b) {
     if (a > 3) {
         return 1;

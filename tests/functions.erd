@@ -1,0 +1,58 @@
+
+
+define int fib(int n) {
+    if (n <= 1) { return n; }
+    return fib(n - 1) + fib(n - 2);
+}
+
+/* Arrays in Eridu are defined by the 'array' keyword,
+which encapsulated all succeeding types as a single
+type-construct, using that construct as a definition
+for its array elements.
+
+This can be seen in the following function:
+*/
+
+define array int evens(array int numbers) {
+    return filter(
+        numbers,
+        lambda (x) = {x % 2 == 0}
+    );
+}
+
+
+/* As a result of this encapsulation, it is possible to
+string together many types, causing a new "type" to be defined
+at compile-time, removing the need to manually define and
+store these types as variables in your code. (Assuming they're
+used infrequently, otherwise it is clearly adviced to manually specify them)
+
+Stringing together types can create a lot of visual clutter, because of this
+we allow developers to wrap their type-definitions inside square brackets. Unlike 
+many other languages, this does note denote any "array-like" behavior, but is
+purely aesthetic.
+*/
+
+define [array array int] build2DMatrix(int m, int n) {
+
+    /* Allocate space for _n_ integers */
+    array int outer = allocate(int, n);
+    
+    for (int i = 0; i < m; i += 1) {
+        outer[i] = allocate(int, m);
+    }
+
+    return outer;
+}
+
+/* You could imagine that stringing types together in this manner
+could potentially create very long and visually cluttering segments
+of type-constructs. To help aid this (as well as many other uses) Eridu
+supports types as variables, which can then be used both for normal program-
+logic, but also for defining function return / variable types at compile-time.
+*/
+
+type matrix2D = [array array int];
+define matrix2D build2DMatrix(int m, int n);
+
+

@@ -173,20 +173,20 @@ enum TokenType find_separator_type(char separator) {
 
 enum TokenType find_keyword_type(char * value, int value_len) {
  
-    if (value_len == 2 && strncmp(value, "if", 2) == 0)     { return IF; }
-    if (value_len == 3 && strncmp(value, "for", 3) == 0)    { return FOR; }
-    if (value_len == 3 && strncmp(value, "int", 3) == 0)    { return INT; }
-    if (value_len == 3 && strncmp(value, "str", 3) == 0)    { return STR; }
-    if (value_len == 4 && strncmp(value, "else", 4) == 0)   { return ELSE; }
-    if (value_len == 4 && strncmp(value, "type", 4) == 0)   { return TYPE; }
-    if (value_len == 5 && strncmp(value, "byte", 4) == 0)  { return BYTE; }
-    if (value_len == 5 && strncmp(value, "while", 5) == 0)  { return WHILE; }
-    if (value_len == 5 && strncmp(value, "float", 5) == 0)  { return FLOAT; }
-    if (value_len == 5 && strncmp(value, "array", 5) == 0)  { return ARRAY; }
-    if (value_len == 6 && strncmp(value, "struct", 6) == 0) { return STRUCT; }
-    if (value_len == 6 && strncmp(value, "lambda", 6) == 0) { return LAMBDA; }
-    if (value_len == 6 && strncmp(value, "define", 6) == 0) { return DEFINE; }
-    if (value_len == 6 && strncmp(value, "return", 6) == 0) { return RETURN; }
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)       { return IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)      { return FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)      { return INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)      { return STR; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)     { return ELSE; }
+    if (value_len == 4 && strncmp(value, "type", 4) == 0)     { return TYPE; }
+    if (value_len == 5 && strncmp(value, "byte", 4) == 0)     { return BYTE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)    { return WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)    { return FLOAT; }
+    if (value_len == 5 && strncmp(value, "array", 5) == 0)    { return ARRAY; }
+    if (value_len == 6 && strncmp(value, "struct", 6) == 0)   { return STRUCT; }
+    if (value_len == 6 && strncmp(value, "lambda", 6) == 0)   { return LAMBDA; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0)   { return DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0)   { return RETURN; }
     if (value_len == 8 && strncmp(value, "callable", 8) == 0) { return CALLABLE; }
 
     return ERROR;
@@ -200,8 +200,8 @@ enum TokenType identify_token_type(char * value, int value_len) {
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len)) { return STRING; }
-        if (is_float(value, value_len))  { return FLOATING; }
+        if (is_string(value, value_len)) { return STR; }
+        if (is_float(value, value_len))  { return FLOAT; }
 
 
         type = find_dual_char_operator_type(value, value_len);
@@ -211,7 +211,7 @@ enum TokenType identify_token_type(char * value, int value_len) {
         if (type != ERROR) { return type; }
     }
 
-    if (is_integer(value, value_len)) { return INTEGER; }
+    if (is_integer(value, value_len)) { return INT; }
 
     type = find_separator_type(value[0]);
     if (type != ERROR) { return type; }
@@ -248,7 +248,7 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.tokentype = identify_token_type(token.value, token.length);
 
     if (token.tokentype == ERROR) {
-        fprintf(stderr, "Lexical Error: No type could be identified for Token '%s'\n", token.value);
+        fprintf(stderr, "Lexical Error: No type could be identified for Token '%s' at position '%d'\n", token.value, token.start);
         exit(1);
     }
 
@@ -397,7 +397,7 @@ int main(int argc, char * argv[]) {
     printf("LEXER: Attempting to lex file '%s'\n", argv[1]);
     struct LexerStatus lexer = lex(argv[1]);
     for (int i = 0; i < lexer.tokens_len; i++) {
-        printf("TOKEN %i:\t%s\n", i, lexer.tokens[i].value);
+        printf("Token #%d:\t%s\n", i, lexer.tokens[i].value);
     }
     
     return 0;

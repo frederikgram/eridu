@@ -1,10 +1,5 @@
 enum TokenType {
     
-    // Primitives
-    INTEGER,
-    FLOATING,
-    STRING,
-
     // Keywords
     IF,
     WHILE,
@@ -12,20 +7,18 @@ enum TokenType {
     ELSE,
     FOR,
     RETURN,
-    INT,
-    FLOAT,
-    STR,
-    STRUCT,
-    ARRAY,
-    CALLABLE,
-    TYPE,
-    LAMBDA,
-    BYTE,
 
-    // Structural Types
-    PARENS_EXPR,
-    PROG,
-    
+    /* Types */
+    INT,
+    STR,
+    BYTE,
+    TYPE,
+    FLOAT,
+    ARRAY,
+    LAMBDA,
+    STRUCT,
+    CALLABLE,
+
     // Seperators
     LPARENS,
     RPARENS,
@@ -50,9 +43,6 @@ enum TokenType {
     MOD,
     GREAT,
     LESS,
-
-    // ASSIGN also functions
-    // as a reserved keyword
     ASSIGN,
 
     // Binary Bit Operators
