@@ -22,6 +22,8 @@ typedef struct LexerStatus {
     struct Token tokens[STD_ARRAY_OF_TOKENS_SIZE];
     int tokens_len;
 
+    int current_token_index;
+
 } LexerStatus;
 
 
@@ -98,7 +100,7 @@ int is_string(char * value, int value_len) {
     return 0;
 }
 
-enum TokenType find_single_char_operator_type(char operator){
+enum TOKEN_TYPE find_single_char_operator_type(char operator){
     switch(operator){
         case '+':
             return PLUS;
@@ -129,7 +131,7 @@ enum TokenType find_single_char_operator_type(char operator){
        
     }
 }
-enum TokenType find_dual_char_operator_type(char * value, int value_len) {
+enum TOKEN_TYPE find_dual_char_operator_type(char * value, int value_len) {
     
     if (value_len != 2) { return ERROR; }
 
@@ -146,7 +148,7 @@ enum TokenType find_dual_char_operator_type(char * value, int value_len) {
 
 }
 
-enum TokenType find_separator_type(char separator) {
+enum TOKEN_TYPE find_separator_type(char separator) {
     
     switch(separator){
         case '(':
@@ -171,7 +173,7 @@ enum TokenType find_separator_type(char separator) {
     }
 }
 
-enum TokenType find_keyword_type(char * value, int value_len) {
+enum TOKEN_TYPE find_keyword_type(char * value, int value_len) {
  
     if (value_len == 2 && strncmp(value, "if", 2) == 0)       { return IF; }
     if (value_len == 3 && strncmp(value, "for", 3) == 0)      { return FOR; }
@@ -194,9 +196,9 @@ enum TokenType find_keyword_type(char * value, int value_len) {
 }
 
 
-enum TokenType identify_token_type(char * value, int value_len) {
+enum TOKEN_TYPE identify_token_type(char * value, int value_len) {
 
-    enum TokenType type;
+    enum TOKEN_TYPE type;
 
     // Types that only tokens of length two or more can be
     if (value_len >= 2) {
@@ -245,16 +247,14 @@ void _build_token_from_buffer(LexerStatus * status) {
     token.start = status->cursor - status->buffer_len + 1;
     token.end = status->cursor;
 
-    token.tokentype = identify_token_type(token.value, token.length);
+    token.type = identify_token_type(token.value, token.length);
 
-    if (token.tokentype == ERROR) {
+    if (token.type == ERROR) {
         fprintf(stderr, "Lexical Error: No type could be identified for Token '%s' at position '%d'\n", token.value, token.start);
         exit(1);
     }
 
-    #ifdef LEXER_PRINT
-        fprintf(stdout, "TOKEN: %s\n", token.value);
-    #endif
+    printf("LEXER: Building Token #%i: '%s' - Type: '%i'\n", status->tokens_len, token.value, token.type);
 
     // Reset Character Buffer
     status->buffer_len = 0;
@@ -272,6 +272,10 @@ void _add_current_char_to_buffer(LexerStatus * status) {
 
 struct LexerStatus lex(char * filename) {
 
+
+    printf("LEXER: Initialzing LexerStatus struct\n");
+    
+
     // Load input file
     FILE * inp_fptr;
     inp_fptr = fopen(filename, "r");
@@ -285,6 +289,8 @@ struct LexerStatus lex(char * filename) {
     status.last_char = '\0';
     status.current_char = fgetc(inp_fptr);
     status.next_char    = fgetc(inp_fptr);
+
+    status.current_token_index = 0;
 
     status.cursor            = 0;
     status.is_inside_comment = 0;
@@ -389,18 +395,20 @@ struct LexerStatus lex(char * filename) {
     return status;
 }
 
-
-int main(int argc, char * argv[]) {
-    if (argc != 2) {
-        return -1;
-    }
-    printf("LEXER: Attempting to lex file '%s'\n", argv[1]);
-    struct LexerStatus lexer = lex(argv[1]);
-    for (int i = 0; i < lexer.tokens_len; i++) {
-        printf("Token #%d:\t%s\n", i, lexer.tokens[i].value);
-    }
+struct Token * next_token(struct LexerStatus * lexer) {
     
-    return 0;
+    if (lexer->current_token_index >= lexer->tokens_len) { return NULL; }
+    return &lexer->tokens[lexer->current_token_index + 1];
+
 }
+struct Token * current_token(struct LexerStatus * lexer) {
+    return &lexer->tokens[lexer->current_token_index];
+}
+
+int increment(struct LexerStatus * lexer) {
+    if (lexer->current_token_index >= lexer->tokens_len) { return -1; }
+    lexer->current_token_index++;
+}
+
 
 

@@ -1,4 +1,4 @@
-enum TokenType {
+enum TOKEN_TYPE {
     
     // Keywords
     IF,
@@ -17,6 +17,7 @@ enum TokenType {
     ARRAY,
     LAMBDA,
     STRUCT,
+    ADDRESS,
     CALLABLE,
 
     // Seperators
@@ -67,7 +68,7 @@ typedef struct Token {
     int length;
     int start;
     int end;
-    enum TokenType tokentype;
+    enum TOKEN_TYPE type;
 
 } Token;
 

@@ -55,4 +55,3 @@ logic, but also for defining function return / variable types at compile-time.
 type matrix2D = [array array int];
 define matrix2D build2DMatrix(int m, int n);
 
-
