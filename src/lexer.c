@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "tokens.h"
+#include "eridu.h"
 
 #define STD_CHARACTER_BUFFER_SIZE 1024
 #define STD_ARRAY_OF_TOKENS_SIZE    102400
@@ -98,131 +98,130 @@ int is_string(char * value, int value_len) {
     return 0;
 }
 
-enum TOKEN_TYPE find_single_char_operator_type(char operator){
+enum TOKEN_KIND find_single_char_operator_type(char operator){
     switch(operator){
         case '+':
-            return PLUS;
+            return TK_PLUS;
         case '-':
-            return MINUS;
+            return TK_MINUS;
         case '/':
-            return DIVIDE;
+            return TK_DIVIDE;
         case '*':
-            return MULTIPLY;
+            return TK_MULTIPLY;
         case '^':
-            return BIT_XOR;
+            return TK_BIT_XOR;
         case '&':
-            return BIT_AND;
+            return TK_BIT_AND;
         case '|':
-            return BIT_OR;
+            return TK_BIT_OR;
         case '=':
-            return ASSIGN;
+            return TK_ASSIGN;
         case '<':
-            return LESS;
+            return TK_LESS;
         case '>':
-            return GREAT;
+            return TK_GREAT;
         case '%':
-            return MOD;
+            return TK_MOD;
         case '!':
-            return NOT;
+            return TK_NOT;
         default:
-            return ERROR;
+            return TK_ERROR;
        
     }
 }
-enum TOKEN_TYPE find_dual_char_operator_type(char * value, int value_len) {
+enum TOKEN_KIND find_dual_char_operator_type(char * value, int value_len) {
     
-    if (value_len != 2) { return ERROR; }
+    if (value_len != 2) { return TK_ERROR; }
 
-    if (strncmp(value, "++", 2) == 0) { return INCREMENT; }
-    if (strncmp(value, "--", 2) == 0) { return DECREMENT; }
-    if (strncmp(value, "**", 2) == 0) { return POWER; }
-    if (strncmp(value, "&&", 2) == 0) { return AND; }
-    if (strncmp(value, "||", 2) == 0) { return OR; }
-    if (strncmp(value, ">=", 2) == 0) { return GEQ; }
-    if (strncmp(value, "<=", 2) == 0) { return LEQ; }
-    if (strncmp(value, "==", 2) == 0) { return EQ; }
+    if (strncmp(value, "++", 2) == 0) { return TK_INCREMENT; }
+    if (strncmp(value, "--", 2) == 0) { return TK_DECREMENT; }
+    if (strncmp(value, "**", 2) == 0) { return TK_POWER; }
+    if (strncmp(value, "&&", 2) == 0) { return TK_AND; }
+    if (strncmp(value, "||", 2) == 0) { return TK_OR; }
+    if (strncmp(value, ">=", 2) == 0) { return TK_GEQ; }
+    if (strncmp(value, "<=", 2) == 0) { return TK_LEQ; }
+    if (strncmp(value, "==", 2) == 0) { return TK_EQ; }
 
-    return ERROR;
+    return TK_ERROR;
 
 }
 
-enum TOKEN_TYPE find_separator_type(char separator) {
+enum TOKEN_KIND find_separator_type(char separator) {
     
     switch(separator){
         case '(':
-            return LPARENS;
+            return TK_LPARENS;
         case ')':
-            return RPARENS;
+            return TK_RPARENS;
         case '[':
-            return LBRACKET;
+            return TK_LBRACKET;
         case ']':
-            return RBRACKET;
+            return TK_RBRACKET;
         case '{':
-            return LBRACE;
+            return TK_LBRACE;
         case '}':
-            return RBRACE;
+            return TK_RBRACE;
         case ',':
-            return COMMA;
+            return TK_COMMA;
         case ';':
-            return SEMICOLON;
+            return TK_SEMICOLON;
         default:
-            return ERROR;
+            return TK_ERROR;
        
     }
 }
 
-enum TOKEN_TYPE find_keyword_type(char * value, int value_len) {
+enum TOKEN_KIND find_keyword_type(char * value, int value_len) {
  
-    if (value_len == 2 && strncmp(value, "if", 2) == 0)       { return IF; }
-    if (value_len == 3 && strncmp(value, "for", 3) == 0)      { return FOR; }
-    if (value_len == 3 && strncmp(value, "int", 3) == 0)      { return INT; }
-    if (value_len == 3 && strncmp(value, "str", 3) == 0)      { return STR; }
-    if (value_len == 4 && strncmp(value, "else", 4) == 0)     { return ELSE; }
-    if (value_len == 4 && strncmp(value, "type", 4) == 0)     { return TYPE; }
-    if (value_len == 5 && strncmp(value, "byte", 4) == 0)     { return BYTE; }
-    if (value_len == 5 && strncmp(value, "while", 5) == 0)    { return WHILE; }
-    if (value_len == 5 && strncmp(value, "float", 5) == 0)    { return FLOAT; }
-    if (value_len == 5 && strncmp(value, "array", 5) == 0)    { return ARRAY; }
-    if (value_len == 6 && strncmp(value, "struct", 6) == 0)   { return STRUCT; }
-    if (value_len == 6 && strncmp(value, "lambda", 6) == 0)   { return LAMBDA; }
-    if (value_len == 6 && strncmp(value, "define", 6) == 0)   { return DEFINE; }
-    if (value_len == 6 && strncmp(value, "return", 6) == 0)   { return RETURN; }
-    if (value_len == 8 && strncmp(value, "callable", 8) == 0) { return CALLABLE; }
+    if (value_len == 2 && strncmp(value, "if", 2) == 0)       { return TK_IF; }
+    if (value_len == 3 && strncmp(value, "for", 3) == 0)      { return TK_FOR; }
+    if (value_len == 3 && strncmp(value, "int", 3) == 0)      { return TK_INT; }
+    if (value_len == 3 && strncmp(value, "str", 3) == 0)      { return TK_STRING; }
+    if (value_len == 4 && strncmp(value, "else", 4) == 0)     { return TK_ELSE; }
+    if (value_len == 4 && strncmp(value, "type", 4) == 0)     { return TK_TYPE; }
+    if (value_len == 5 && strncmp(value, "byte", 4) == 0)     { return TK_BYTE; }
+    if (value_len == 5 && strncmp(value, "while", 5) == 0)    { return TK_WHILE; }
+    if (value_len == 5 && strncmp(value, "float", 5) == 0)    { return TK_FLOAT; }
+    if (value_len == 5 && strncmp(value, "array", 5) == 0)    { return TK_ARRAY; }
+    if (value_len == 6 && strncmp(value, "struct", 6) == 0)   { return TK_STRUCT; }
+    if (value_len == 6 && strncmp(value, "define", 6) == 0)   { return TK_DEFINE; }
+    if (value_len == 6 && strncmp(value, "return", 6) == 0)   { return TK_RETURN; }
+    if (value_len == 8 && strncmp(value, "callable", 8) == 0) { return TK_CALLABLE; }
 
-    return ERROR;
+    return TK_ERROR;
 
 }
 
 
-enum TOKEN_TYPE identify_token_type(char * value, int value_len) {
+enum TOKEN_KIND identify_token_kind(char * value, int value_len) {
 
-    enum TOKEN_TYPE type;
+    enum TOKEN_KIND type;
 
     // Types that only token-> of length two or more can be
     if (value_len >= 2) {
-        if (is_string(value, value_len)) { return STR; }
-        if (is_float(value, value_len))  { return FLOAT; }
+        if (is_string(value, value_len)) { return TK_STRING; }
+        if (is_float(value, value_len))  { return TK_FLOAT; }
 
 
         type = find_dual_char_operator_type(value, value_len);
-        if (type != ERROR) { return type; }
+        if (type != TK_ERROR) { return type; }
 
         type = find_keyword_type(value, value_len);
-        if (type != ERROR) { return type; }
+        if (type != TK_ERROR) { return type; }
     }
 
-    if (is_integer(value, value_len)) { return INT; }
+    if (is_integer(value, value_len)) { return TK_INT; }
 
     type = find_separator_type(value[0]);
-    if (type != ERROR) { return type; }
+    if (type != TK_ERROR) { return type; }
 
     type = find_single_char_operator_type(value[0]);
-    if (type != ERROR) { return type; }
+    if (type != TK_ERROR) { return type; }
 
     /* Assume everything else is an identifier 
     as long as the first character is an alpha character */
-    if (isalpha(value[0]) != 0) { return IDENTIFIER; }
-    else { return ERROR; }
+    if (isalpha(value[0]) != 0) { return TK_IDENTIFIER; }
+    else { return TK_ERROR; }
 }
 
 void _increment(LexerStatus * status, FILE * ptr) {
@@ -246,9 +245,9 @@ void _build_token_from_buffer(LexerStatus * status) {
     token->end = status->cursor;
     token->next = NULL;
 
-    token->type = identify_token_type(token->value, token->length);
+    token->kind = identify_token_kind(token->value, token->length);
 
-    if (token->type == ERROR) {
+    if (token->kind == TK_ERROR) {
         fprintf(stderr, "Lexical Error: No type could be identified for Token '%s' at position '%d'\n", token->value, token->start);
         exit(1);
     }

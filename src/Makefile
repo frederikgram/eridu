@@ -1,5 +1,5 @@
 CC = gcc
-DEPS = tokens.h ast.h
+DEPS = eridu.h
 OBJS = parser.o
 parser: $(OBJS) 
 	$(CC) -o $@ $^

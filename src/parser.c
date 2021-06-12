@@ -2,11 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "lexer.c"
-#include "ast.h"
 
-
+#include "utils.c"
 
 int main(int argc, char * argv[]){
 
