@@ -108,12 +108,6 @@ enum TOKEN_KIND find_single_char_operator_type(char operator){
             return TK_DIVIDE;
         case '*':
             return TK_MULTIPLY;
-        case '^':
-            return TK_BIT_XOR;
-        case '&':
-            return TK_BIT_AND;
-        case '|':
-            return TK_BIT_OR;
         case '=':
             return TK_ASSIGN;
         case '<':
@@ -179,7 +173,6 @@ enum TOKEN_KIND find_keyword_type(char * value, int value_len) {
     if (value_len == 3 && strncmp(value, "str", 3) == 0)      { return TK_STRING; }
     if (value_len == 4 && strncmp(value, "else", 4) == 0)     { return TK_ELSE; }
     if (value_len == 4 && strncmp(value, "type", 4) == 0)     { return TK_TYPE; }
-    if (value_len == 5 && strncmp(value, "byte", 4) == 0)     { return TK_BYTE; }
     if (value_len == 5 && strncmp(value, "while", 5) == 0)    { return TK_WHILE; }
     if (value_len == 5 && strncmp(value, "float", 5) == 0)    { return TK_FLOAT; }
     if (value_len == 5 && strncmp(value, "array", 5) == 0)    { return TK_ARRAY; }

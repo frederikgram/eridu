@@ -1,4 +1,39 @@
 
+<type-wrapper> ::=
+    | array
+    | address
+
+<type-specifier> ::=
+    | char
+    | string
+    | int
+    | float
+    | double
+    | struct
+    | enum
+    | callable
+    | type
+    | address
+    | bool
+
+<type> ::=
+    | <type-specifier>
+    | <type-wrapper> <type-specifier>
+    | "[" <type-specifier> "]"
+    | "[" (<type-wrapper> <type-specifier>)* "]"
+    
+<assignment-operator> ::=
+    | =
+    | *=
+    | /=
+    | %=
+    | +=
+    | -=
+
+<unary-operator> ::=
+    | !
+    | -
+
 <expr-stmt> ::=
     | expr? ";"
 
@@ -9,7 +44,7 @@
     | "while" "(" <expr> ")" <stmt>
     | "continue" ";"
     | "break" ";"
-    | "return" <expr>? ":"
+    | "return" <expr>? ";"
     | "{" <compound-stmt>
     | <expr-stmt>
 

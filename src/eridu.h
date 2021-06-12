@@ -11,7 +11,6 @@ enum TOKEN_KIND {
     TK_LEQ,
     TK_MOD,
     TK_NOT,
-    TK_BYTE,
     TK_ELSE,
     TK_ERROR,
     TK_LESS,
@@ -25,7 +24,6 @@ enum TOKEN_KIND {
     TK_POWER,
     TK_WHILE,
     TK_ASSIGN,
-    TK_BIT_OR,
     TK_DEFINE,
     TK_DIVIDE,
     TK_DOUBLE,
@@ -35,8 +33,6 @@ enum TOKEN_KIND {
     TK_STRING,
     TK_STRUCT,
     TK_ADDRESS,
-    TK_BIT_AND,
-    TK_BIT_XOR,
     TK_LPARENS,
     TK_RPARENS,
     TK_CALLABLE,
@@ -54,10 +50,6 @@ enum NODE_KIND {
 
   NK_ADD,       // +
   NK_ASSIGN,    // =
-  NK_BITAND,    // &
-  NK_BITNOT,    // ~
-  NK_BITOR,     // |
-  NK_BITXOR,    // ^
   NK_COMMA,     // ,
   NK_DIV,       // /
   NK_LT,        // <
@@ -71,16 +63,11 @@ enum NODE_KIND {
   NK_LOGAND,    // &&
   NK_LOGOR,     // ||
   NK_NE,        // !=
-  NK_DO,        // "do"
   NK_IF,        // "if"
-  NK_CASE,      // "case"
-  NK_ADDR,      // unary &
   NK_BLOCK,     // { ... }
-  NK_DEREF,     // unary *
   NK_NEG,       // unary -
   NK_NUM,       // Integer
   NK_RETURN,    // "return"
-  NK_SWITCH,    // "switch"
   NK_VAR,       // Variable
   NK_NULL_EXPR, // Do nothing
   NK_FUNCALL,   // Function call
@@ -93,10 +80,8 @@ enum NODE_KIND {
 enum TYPE_KIND {
     TYK_INT,
     TYK_BOOL,
-    TYK_BYTE,
     TYK_CHAR,
     TYK_ENUM,
-    TYK_NULL,
     TYK_TYPE,
     TYK_VOID,
     TYK_ARRAY,
@@ -106,6 +91,7 @@ enum TYPE_KIND {
     TYK_STRUCT,
     TYK_ADDRESS,
     TYK_CALLABLE,
+    TYK_COMPOUND, // Say [address array array int] 
 
 } TYPE_KIND;
 
