@@ -19,10 +19,8 @@ typedef struct LexerStatus {
     char buffer[STD_CHARACTER_BUFFER_SIZE];
     int buffer_len;
 
-    struct Token tokens[STD_ARRAY_OF_TOKENS_SIZE];
-    int tokens_len;
-
-    int current_token_index;
+    struct Token * head;
+    struct Token * tail;
 
 } LexerStatus;
 
@@ -200,7 +198,7 @@ enum TOKEN_TYPE identify_token_type(char * value, int value_len) {
 
     enum TOKEN_TYPE type;
 
-    // Types that only tokens of length two or more can be
+    // Types that only token-> of length two or more can be
     if (value_len >= 2) {
         if (is_string(value, value_len)) { return STR; }
         if (is_float(value, value_len))  { return FLOAT; }
@@ -240,27 +238,31 @@ void _build_token_from_buffer(LexerStatus * status) {
     // Sanity Check
     if (status->buffer_len == 0){ return; }
 
-    struct Token token;
-    token.value = malloc(sizeof(char) * (status->buffer_len + 1));
-    strncpy(token.value, status->buffer, status->buffer_len);
-    token.length = status->buffer_len;
-    token.start = status->cursor - status->buffer_len + 1;
-    token.end = status->cursor;
+    struct Token * token = (struct Token *) malloc(sizeof(struct Token *));
+    token->value = malloc(sizeof(char) * (status->buffer_len + 1));
+    strncpy(token->value, status->buffer, status->buffer_len);
+    token->length = status->buffer_len;
+    token->start = status->cursor - status->buffer_len + 1;
+    token->end = status->cursor;
+    token->next = NULL;
 
-    token.type = identify_token_type(token.value, token.length);
+    token->type = identify_token_type(token->value, token->length);
 
-    if (token.type == ERROR) {
-        fprintf(stderr, "Lexical Error: No type could be identified for Token '%s' at position '%d'\n", token.value, token.start);
+    if (token->type == ERROR) {
+        fprintf(stderr, "Lexical Error: No type could be identified for Token '%s' at position '%d'\n", token->value, token->start);
         exit(1);
     }
 
-    printf("LEXER: Building Token #%i: '%s' - Type: '%i'\n", status->tokens_len, token.value, token.type);
 
     // Reset Character Buffer
     status->buffer_len = 0;
 
-    status->tokens[status->tokens_len] = token;
-    status->tokens_len++;
+    if (status->head == NULL) { status->head = token; }
+    if (status->tail != NULL) {
+        status->tail->next = token;
+    }
+    status->tail = token;
+     
 
 }
 
@@ -270,7 +272,7 @@ void _add_current_char_to_buffer(LexerStatus * status) {
         status->buffer_len++;
 }
 
-struct LexerStatus lex(char * filename) {
+struct Token * lex(char * filename) {
 
 
     printf("LEXER: Initialzing LexerStatus struct\n");
@@ -290,13 +292,14 @@ struct LexerStatus lex(char * filename) {
     status.current_char = fgetc(inp_fptr);
     status.next_char    = fgetc(inp_fptr);
 
-    status.current_token_index = 0;
 
     status.cursor            = 0;
     status.is_inside_comment = 0;
     status.is_inside_string  = 0;
     status.buffer_len        = 0;
-    status.tokens_len        = 0;
+
+    status.head = NULL;
+    status.tail =NULL;
 
     char c;
 
@@ -353,9 +356,9 @@ struct LexerStatus lex(char * filename) {
             continue;
         }
         
-        // Check if the current token is a separator
+        // Check if the current token->is a separator
         // if it is, we convert both the current buffer and it
-        // into two seperate tokens, then increment the lexer status.
+        // into two seperate token->, then increment the lexer status.
         if (is_separator(status.current_char) && !status.is_inside_string && !status.is_inside_comment) {
             _build_token_from_buffer(&status);
             _add_current_char_to_buffer(&status);
@@ -392,23 +395,6 @@ struct LexerStatus lex(char * filename) {
        _increment(&status, inp_fptr);
     }
 
-    return status;
+    return status.head;
 }
-
-struct Token * next_token(struct LexerStatus * lexer) {
-    
-    if (lexer->current_token_index >= lexer->tokens_len) { return NULL; }
-    return &lexer->tokens[lexer->current_token_index + 1];
-
-}
-struct Token * current_token(struct LexerStatus * lexer) {
-    return &lexer->tokens[lexer->current_token_index];
-}
-
-int increment(struct LexerStatus * lexer) {
-    if (lexer->current_token_index >= lexer->tokens_len) { return -1; }
-    lexer->current_token_index++;
-}
-
-
 

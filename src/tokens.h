@@ -70,5 +70,7 @@ typedef struct Token {
     int end;
     enum TOKEN_TYPE type;
 
+    struct Token * next;
+    
 } Token;
 
