@@ -15,6 +15,9 @@ enum TOKEN_KIND {
     TK_ERROR,
     TK_LESS,
     TK_PLUS,
+    TK_CHAR,
+    TK_BOOL,
+    TK_ENUM,
     TK_TYPE,
     TK_ARRAY,
     TK_COMMA,
@@ -110,14 +113,36 @@ typedef struct Token {
 } Token;
 
 
+
+typedef struct Type {
+
+    enum TYPE_KIND kind;
+    int size;   
+
+    struct Token  * token;
+    struct Type   * next; 
+
+    // Used for struct and enum
+    struct Token * identifier; 
+    
+} Type;
+
+
+typedef struct Scope {
+    //
+
+} Scope;
+
 typedef struct Node {
 
 
     enum NODE_KIND kind;
     enum TYPE_KIND tyk; 
 
+    struct Node  * next;
+    struct Type  * type;
     struct Token * token;
-    struct Node * next;
+    struct Scope * scope;
 
     /* Fields used for
        specific NODE_KINDs
@@ -132,11 +157,3 @@ typedef struct Node {
     struct Node * arguments;
 
 } Node;
-
-typedef struct Type {
-
-    enum TYPE_KIND kind;
-    int size;   
-    struct Token  * token;
-    
-} Type;

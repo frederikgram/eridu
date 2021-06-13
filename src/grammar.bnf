@@ -20,6 +20,12 @@
     | <type-specifier>
     | <type-wrapper> <type-specifier>
     | "[" <type-specifier> "]"
+    
+    // this will have to be thoroughly validated
+    // during parsing, as many false-positives could arise
+    // such as: [ address int array int]
+    // which is nonsensical
+
     | "[" (<type-wrapper> <type-specifier>)* "]"
     
 <assignment-operator> ::=
@@ -34,9 +40,6 @@
     | !
     | -
 
-<expr-stmt> ::=
-    | expr? ";"
-
 
 <stmt> ::= 
     | "if" "(" <expr> ")" <stmt> ("else" <stmt>)?
@@ -45,6 +48,6 @@
     | "continue" ";"
     | "break" ";"
     | "return" <expr>? ";"
-    | "{" <compound-stmt>
-    | <expr-stmt>
+    | "{" <stmt>* "}"
+    | <expr> ";"
 
